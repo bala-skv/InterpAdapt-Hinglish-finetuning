@@ -87,9 +87,17 @@ def run_trace_for_pair(model, tok, pair_kwargs) -> list[list[float]]:
             
             # calculate logp from logits
             def calc_logp(logits, ids):
-                n_t = ids.shape[1] - n_prompt
+                prompt_ids = tok.encode(en_prompt, add_special_tokens=False)
+                full_ids = ids[0].tolist()
+                n_p = len(prompt_ids)
+                if full_ids[:n_p] != prompt_ids:
+                    n_p = 0
+                    for x, y in zip(prompt_ids, full_ids):
+                        if x != y: break
+                        n_p += 1
+                n_t = len(full_ids) - n_p
                 lps = logits.log_softmax(-1)
-                per_token = [lps[0, n_prompt + k - 1, ids[0, n_prompt + k]].item() for k in range(n_t)]
+                per_token = [lps[0, n_p + k - 1, full_ids[n_p + k]].item() for k in range(n_t)]
                 return sum(per_token) / n_t
                 
             m_p = calc_logp(lg_n, en_ids_n) - calc_logp(lg_f, en_ids_f)
