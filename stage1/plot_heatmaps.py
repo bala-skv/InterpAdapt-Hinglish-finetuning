@@ -6,7 +6,7 @@ import numpy as np
 from pathlib import Path
 
 def plot_heatmaps():
-    results_path = Path("runs/pilot_trace_results.json")
+    results_path = Path("runs/full_trace_results.json")
     if not results_path.exists():
         print(f"Cannot find {results_path}")
         return
@@ -14,7 +14,7 @@ def plot_heatmaps():
     with open(results_path, "r") as f:
         data = json.load(f)
         
-    conditions = list(data.keys())
+    conditions = list(data["heatmaps"].keys())
     if len(conditions) == 0:
         return
         
@@ -23,8 +23,7 @@ def plot_heatmaps():
         axes = [axes]
         
     for ax, cond in zip(axes, conditions):
-        heatmap_data = np.array(data[cond]) # shape (28, 12)
-        # Flip the array so layer 0 is at the bottom
+        heatmap_data = np.array(data["heatmaps"][cond]) # shape (28, 12)
         heatmap_data = np.flip(heatmap_data, axis=0)
         
         sns.heatmap(heatmap_data, ax=ax, cmap="RdBu_r", center=0, vmin=-1.0, vmax=1.0,
@@ -34,12 +33,11 @@ def plot_heatmaps():
         ax.set_xlabel("Head ID")
         ax.set_ylabel("Layer ID")
         
-        # Adjust y-axis ticks since we flipped it (0 at bottom)
         ax.set_yticks(np.arange(0.5, 28.5, 2))
         ax.set_yticklabels(np.arange(27, -1, -2))
 
     plt.tight_layout()
-    out_file = "runs/pilot_heatmaps.png"
+    out_file = "runs/full_heatmaps.png"
     plt.savefig(out_file, dpi=300)
     print(f"Heatmaps saved to {out_file}")
 
