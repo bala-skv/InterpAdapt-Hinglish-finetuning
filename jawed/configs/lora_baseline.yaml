@@ -74,7 +74,7 @@ wandb:
   # SLURM job continues the SAME run via run_dir/wandb_run_id.
   enabled: true
   project: "babyshark-cra"
-  entity: null              # your W&B team/username; null uses the logged-in default
+  entity: "phdiiitmohammed"  # Jawed's W&B account; run lands at wandb.ai/phdiiitmohammed/babyshark-cra
   run_name: null            # null -> the run-dir name (lora-baseline-<timestamp>)
   mode: "online"            # online | offline | disabled
   tags: ["stage2", "lora-baseline", "sail2017"]
