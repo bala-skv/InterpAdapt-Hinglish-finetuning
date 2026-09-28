@@ -66,3 +66,16 @@ train:
   eval_every: 200           # periodic base-vs-LoRA accuracy checks
   max_grad_norm: 1.0
 
+wandb:
+  # Experiment tracking -> the W&B link required by submission guidelines §3.
+  # On the cluster, `export WANDB_API_KEY=...` (or `wandb login`) once; the GPU
+  # node has internet. Set enabled: false or mode: offline for no-network runs
+  # (offline writes a local run you can `wandb sync` later). Resumable: a chained
+  # SLURM job continues the SAME run via run_dir/wandb_run_id.
+  enabled: true
+  project: "babyshark-cra"
+  entity: null              # your W&B team/username; null uses the logged-in default
+  run_name: null            # null -> the run-dir name (lora-baseline-<timestamp>)
+  mode: "online"            # online | offline | disabled
+  tags: ["stage2", "lora-baseline", "sail2017"]
+

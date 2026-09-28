@@ -2,13 +2,18 @@
 
 This is the baseline the interpretability-guided Circuit-Routing Adapter will be
 measured against: a *uniform* LoRA (every targeted head adapted equally) on the
-English -> Hindi translation task. It reports one comparable number --
+SAIL-2017 Romanized (Hinglish) code-mixed **sentiment classification** task
+(``negative`` / ``neutral`` / ``positive``). It reports one comparable number --
 
-    mean per-token teacher-forced log-probability of the Hindi target on a
-    held-out eval split, for the base model vs. the LoRA-adapted model --
+    base-vs-LoRA sentiment **accuracy / macro-F1** on the frozen held-out
+    validation split, framed as label-word generation and scored by ranking the
+    three label verbalizers by teacher-forced log-probability --
 
-using the same metric as Stage-1 tracing (see bala/sequence_scoring.py), so the
-scales line up across the project.
+using the same scoring machinery as Stage-1 tracing (see bala/sequence_scoring.py).
+
+Metrics, config and curves are optionally logged to **Weights & Biases** (see the
+``wandb:`` config section); the run is resumable so a chained SLURM job continues
+the same W&B run.
 
 Design notes
 ------------
@@ -102,12 +107,26 @@ class TrainCfg:
 
 
 @dataclass
+class WandbCfg:
+    # Optional experiment tracking. Set enabled=false to turn off entirely; it
+    # also degrades gracefully (warn + continue) if wandb is missing or init
+    # fails, so a run never dies because of logging.
+    enabled: bool = True
+    project: str = "babyshark-cra"
+    entity: Optional[str] = None       # your W&B team/user; null -> default
+    run_name: Optional[str] = None     # null -> the run-dir name
+    mode: str = "online"               # online | offline | disabled
+    tags: List[str] = field(default_factory=lambda: ["stage2", "lora-baseline", "sail2017"])
+
+
+@dataclass
 class BaselineConfig:
     model: ModelConfig = field(default_factory=ModelConfig)
     quant: QuantConfig = field(default_factory=QuantConfig)
     lora: LoraCfg = field(default_factory=LoraCfg)
     data: DataCfg = field(default_factory=DataCfg)
     train: TrainCfg = field(default_factory=TrainCfg)
+    wandb: WandbCfg = field(default_factory=WandbCfg)
     output_dir: str = "runs"
 
 
@@ -117,6 +136,7 @@ _SECTIONS = {
     "lora": LoraCfg,
     "data": DataCfg,
     "train": TrainCfg,
+    "wandb": WandbCfg,
 }
 
 
@@ -322,6 +342,48 @@ def build_model(cfg: BaselineConfig, tokenizer, log):
     return model
 
 
+def _init_wandb(cfg: BaselineConfig, run_dir: Path, log):
+    """Start (or resume) a W&B run for this run dir; None if disabled/unavailable.
+
+    The run id is persisted in ``run_dir/wandb_run_id`` so a chained SLURM resume
+    continues the SAME W&B run instead of spawning a new one. Any failure (wandb
+    not installed, no API key, offline FS) is downgraded to a warning so logging
+    never crashes the training job.
+    """
+    wcfg = cfg.wandb
+    if not wcfg.enabled:
+        return None
+    try:
+        import wandb
+    except ImportError:
+        log.warning("wandb not installed (pip install wandb); continuing without it.")
+        return None
+
+    id_file = run_dir / "wandb_run_id"
+    run_id = id_file.read_text().strip() if id_file.exists() else wandb.util.generate_id()
+    try:
+        run = wandb.init(
+            project=wcfg.project,
+            entity=wcfg.entity,
+            name=wcfg.run_name or run_dir.name,
+            id=run_id,
+            resume="allow",
+            mode=wcfg.mode,
+            tags=list(wcfg.tags),
+            config=dataclasses.asdict(cfg),
+            dir=str(run_dir),
+        )
+    except Exception as exc:  # noqa: BLE001 - never let logging kill the run
+        log.warning("wandb.init failed (%s); continuing without it.", exc)
+        return None
+
+    if not id_file.exists():
+        id_file.write_text(run_id, encoding="utf-8")
+    log.info("wandb run '%s' (project=%s mode=%s id=%s)",
+             run.name, wcfg.project, wcfg.mode, run_id)
+    return run
+
+
 def train(cfg: BaselineConfig, run_dir: Path, resume: bool, log) -> dict:
     import torch
     from torch.utils.data import DataLoader
@@ -372,6 +434,8 @@ def train(cfg: BaselineConfig, run_dir: Path, resume: bool, log) -> dict:
         start_step = load_checkpoint(ckpt_path, model, optimizer, scheduler)
         log.info("resumed from %s at step %d", ckpt_path, start_step)
 
+    wb = _init_wandb(cfg, run_dir, log)
+
     # SLURM sends SIGUSR1 shortly before the wall-time kill; save and exit 0 so
     # the chained job resumes instead of losing the last interval of training.
     stop = {"flag": False}
@@ -401,9 +465,13 @@ def train(cfg: BaselineConfig, run_dir: Path, resume: bool, log) -> dict:
         scheduler.step()
         step += 1
 
+        cur_lr = scheduler.get_last_lr()[0]
+        if wb is not None:
+            wb.log({"train/loss": loss_val, "train/lr": cur_lr}, step=step)
+
         if step % 10 == 0:
             log.info("step %4d/%d  loss=%.4f  lr=%.2e",
-                     step, cfg.train.max_steps, loss_val, scheduler.get_last_lr()[0])
+                     step, cfg.train.max_steps, loss_val, cur_lr)
 
         if cfg.train.ckpt_every and step % cfg.train.ckpt_every == 0:
             save_checkpoint(ckpt_path, model, optimizer, scheduler, step)
@@ -413,6 +481,9 @@ def train(cfg: BaselineConfig, run_dir: Path, resume: bool, log) -> dict:
             m = evaluate(model, tokenizer, eval_ex, device, cfg.data.max_len)
             log.info("[eval @ %d] base_acc=%.4f lora_acc=%.4f delta=%+.4f",
                      step, m["base_acc"], m["lora_acc"], m["delta_acc"])
+            if wb is not None:
+                wb.log({f"eval/{k}": v for k, v in m.items()
+                        if isinstance(v, (int, float))}, step=step)
             model.train()
 
     save_checkpoint(ckpt_path, model, optimizer, scheduler, step)
@@ -421,6 +492,8 @@ def train(cfg: BaselineConfig, run_dir: Path, resume: bool, log) -> dict:
         # Interrupted: leave a resumable checkpoint, no DONE marker, exit 0 so
         # the SLURM chain resubmits and continues.
         log.info("interrupted at step %d; checkpoint saved, exiting for resume", step)
+        if wb is not None:
+            wb.finish(exit_code=0)
         return {"interrupted": True, "step": step}
 
     log.info("training complete at step %d; running final eval...", step)
@@ -429,6 +502,12 @@ def train(cfg: BaselineConfig, run_dir: Path, resume: bool, log) -> dict:
 
     # Save the adapter separately so it can be reloaded without the optimizer.
     model.save_pretrained(str(run_dir / "adapter"))
+
+    if wb is not None:
+        num_metrics = {k: v for k, v in metrics.items() if isinstance(v, (int, float))}
+        wb.log({f"final/{k}": v for k, v in num_metrics.items()}, step=step)
+        wb.summary.update(num_metrics)
+        wb.finish()
     return metrics
 
 

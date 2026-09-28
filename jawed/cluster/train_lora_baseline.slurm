@@ -85,6 +85,18 @@ export TOKENIZERS_PARALLELISM=false
 export PYTHONUNBUFFERED=1
 echo "  HF_HOME : ${HF_HOME}   OFFLINE(hub/ds): ${HF_HUB_OFFLINE}/${HF_DATASETS_OFFLINE}"
 if command -v df >/dev/null 2>&1; then df -h "$(dirname "${HF_HOME}")" 2>/dev/null || true; fi
+
+# --- Weights & Biases (experiment tracking; guidelines-required link) --------
+# The compute node has internet, so W&B logs online. Provide a key ONE of two
+# ways before submitting:  export WANDB_API_KEY=...   (or run `wandb login`).
+# W&B artifacts go under RUN_DIR (durable) and the run id is persisted so a
+# chained resume continues the SAME run. For no-network runs use WANDB_MODE=
+# offline (sync later with `wandb sync`) or set wandb.enabled=false in the config.
+export WANDB_DIR="${WANDB_DIR:-${RUN_DIR}}"
+if [[ -z "${WANDB_API_KEY:-}" && "${WANDB_MODE:-online}" == "online" ]]; then
+    echo "[wandb] WARNING: WANDB_API_KEY unset -> W&B may run offline or skip." >&2
+    echo "        export WANDB_API_KEY=... (or 'wandb login'), or set WANDB_MODE=offline." >&2
+fi
 #
 # NOTE: to run OFFLINE instead (no node network), pre-warm a SHARED cache and
 # submit with HF_HOME pointing at it + HF_HUB_OFFLINE=1 HF_DATASETS_OFFLINE=1,

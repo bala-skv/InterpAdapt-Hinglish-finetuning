@@ -4,5 +4,6 @@ transformers>=4.44,<5      # <5: transformers 5.x renamed from_pretrained(torch_
 accelerate>=0.33
 peft>=0.12
 bitsandbytes>=0.43      # 4-bit / 8-bit quantization (CUDA only)
-datasets>=2.14         # parallel corpus for the LoRA fine-tuning baseline (HF fallback)
+datasets>=2.14         # SAIL-2017 sentiment splits for the LoRA fine-tuning baseline
 pyyaml>=6.0
+wandb>=0.16            # experiment tracking for the Stage-2 baseline (guidelines §3 link)
