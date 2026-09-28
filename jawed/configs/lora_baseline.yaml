@@ -27,7 +27,7 @@ quant:
 lora:
   rank: 8
   alpha: 16
-  dropout: 0.0
+  dropout: 0.05             # light regularization to curb overfitting on the small set
   # Head-aligned projections (blocks of head_dim). k/v are KV-group aligned, so
   # the future per-head routing mask can only live on q_proj/o_proj -- the
   # uniform baseline shares that surface for an apples-to-apples comparison.
@@ -42,8 +42,11 @@ data:
   hf_dataset: "cfilt/iitb-english-hindi"
   hf_config: null
   hf_train_split: "train"
-  hf_eval_split: "validation"
-  train_size: 4000          # small on purpose: one defensible number, fast
+  # null -> hold the eval set out from the TAIL of the train split (same
+  # distribution), so the number measures task learning, not the IITB train-vs-dev
+  # domain shift. Set to "validation"/"test" to score the official split instead.
+  hf_eval_split: null
+  train_size: 8000          # small on purpose: one defensible number, fast
   eval_size: 200
   max_len: 256
 
@@ -52,10 +55,10 @@ train:
   deterministic: true
   batch_size: 4
   grad_accum_steps: 8       # effective batch 32
-  lr: 2.0e-4
-  weight_decay: 0.0
+  lr: 5.0e-5               # lowered from 2e-4: 2e-4 overfit (train ppl 1.35 vs eval 4.4)
+  weight_decay: 0.01
   warmup_steps: 20
   max_steps: 400
   ckpt_every: 50            # resumable checkpoints to the durable run dir
-  eval_every: 0            # 0 = eval only at the end
+  eval_every: 100          # periodic eval to watch for over/under-fitting
   max_grad_norm: 1.0

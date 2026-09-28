@@ -171,6 +171,19 @@ def load_splits(
         raise ValueError(
             "no data source configured: set data.jsonl_train or data.hf_dataset"
         )
-    train = load_pairs_hf(hf_dataset, hf_train_split, limit=train_size, config_name=hf_config)
-    eval_pairs = load_pairs_hf(hf_dataset, hf_eval_split, limit=eval_size, config_name=hf_config)
+    if hf_eval_split:
+        # Separate eval split (may be a different domain than train).
+        train = load_pairs_hf(hf_dataset, hf_train_split, limit=train_size, config_name=hf_config)
+        eval_pairs = load_pairs_hf(hf_dataset, hf_eval_split, limit=eval_size, config_name=hf_config)
+        return train, eval_pairs
+
+    # hf_eval_split is null -> carve the eval set from the tail of the train
+    # split so both are the SAME distribution. This isolates "did LoRA learn the
+    # task" from any train-vs-official-dev domain shift.
+    n_eval = eval_size or 200
+    total = (train_size + n_eval) if train_size else None
+    combined = load_pairs_hf(hf_dataset, hf_train_split, limit=total, config_name=hf_config)
+    if len(combined) <= n_eval:
+        raise ValueError(f"not enough data ({len(combined)}) to hold out {n_eval} eval examples")
+    eval_pairs, train = combined[-n_eval:], combined[:-n_eval]
     return train, eval_pairs
