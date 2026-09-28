@@ -39,11 +39,16 @@ data:
   jsonl_train: null
   jsonl_eval: null
   # Satyam's frozen, de-duplicated SAIL-2017 Romanized Stage-2 splits.
-  # Each row is a "<post>\t<label>" text string; labels: negative/neutral/positive.
+  # Each row is a "<post>\t<label>" text line; labels: negative/neutral/positive.
   hf_dataset: "satyam-arora-iiit-hyderabad/babyshark-sail2017-stage2"
   hf_config: null
-  hf_train_split: "train"        # 10,068 examples
-  hf_eval_split: "validation"    # 1,260 examples
+  hf_train_split: "train"        # 10,068 examples (sanitized)
+  hf_eval_split: "validation"    # 1,260 examples (sanitized)
+  # IMPORTANT: load the sanitized files explicitly. The repo also ships raw/
+  # files and the auto-merged default config mixes both (~2x rows) AND undoes the
+  # 12-example train->eval de-duplication. Point at sanitized/ to avoid leakage.
+  hf_train_file: "sanitized/train.txt"
+  hf_eval_file: "sanitized/validation.txt"
   train_size: null          # null = full frozen train split
   eval_size: null           # null = full frozen validation split
   max_len: 256

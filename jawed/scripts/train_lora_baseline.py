@@ -77,6 +77,10 @@ class DataCfg:
     hf_config: Optional[str] = None
     hf_train_split: str = "train"
     hf_eval_split: str = "validation"
+    # Use the de-duplicated sanitized files, NOT the auto-merged default config
+    # (which mixes raw/ + sanitized/ and re-introduces the 12 train->eval leaks).
+    hf_train_file: Optional[str] = "sanitized/train.txt"
+    hf_eval_file: Optional[str] = "sanitized/validation.txt"
     train_size: Optional[int] = None
     eval_size: Optional[int] = None
     max_len: int = 256
@@ -334,6 +338,8 @@ def train(cfg: BaselineConfig, run_dir: Path, resume: bool, log) -> dict:
         hf_config=cfg.data.hf_config,
         hf_train_split=cfg.data.hf_train_split,
         hf_eval_split=cfg.data.hf_eval_split,
+        hf_train_file=cfg.data.hf_train_file,
+        hf_eval_file=cfg.data.hf_eval_file,
         train_size=cfg.data.train_size,
         eval_size=cfg.data.eval_size,
     )

@@ -112,11 +112,21 @@ def load_examples_hf(
     limit: Optional[int] = None,
     config_name: Optional[str] = None,
     text_key: str = "text",
+    data_file: Optional[str] = None,
 ) -> List[Example]:
-    """Load a SAIL split from the Hub and parse the ``post\\tlabel`` text column."""
+    """Load a SAIL split from the Hub and parse the ``post\\tlabel`` text column.
+
+    The repo ships BOTH ``raw/`` and ``sanitized/`` files, and the auto-detected
+    default config merges them under each split (~2x rows, and it re-introduces
+    the 12 train->eval leaks). Always pass ``data_file`` (e.g.
+    ``"sanitized/train.txt"``) so only the de-duplicated sanitized split is used.
+    """
     from datasets import load_dataset
 
-    ds = load_dataset(dataset_name, config_name, split=split)
+    if data_file:
+        ds = load_dataset(dataset_name, data_files={split: data_file}, split=split)
+    else:
+        ds = load_dataset(dataset_name, config_name, split=split)
     rows = (row[text_key] for row in ds)
     out: List[Example] = []
     for post, label in _iter_records(rows):
@@ -174,6 +184,8 @@ def load_splits(
     hf_config: Optional[str] = None,
     hf_train_split: str = "train",
     hf_eval_split: str = "validation",
+    hf_train_file: Optional[str] = None,
+    hf_eval_file: Optional[str] = None,
     train_size: Optional[int] = None,
     eval_size: Optional[int] = None,
 ):
@@ -196,6 +208,12 @@ def load_splits(
         raise ValueError(
             "no data source configured: set data.jsonl_train or data.hf_dataset"
         )
-    train = load_examples_hf(hf_dataset, hf_train_split, limit=train_size, config_name=hf_config)
-    eval_ex = load_examples_hf(hf_dataset, hf_eval_split, limit=eval_size, config_name=hf_config)
+    train = load_examples_hf(
+        hf_dataset, hf_train_split, limit=train_size,
+        config_name=hf_config, data_file=hf_train_file,
+    )
+    eval_ex = load_examples_hf(
+        hf_dataset, hf_eval_split, limit=eval_size,
+        config_name=hf_config, data_file=hf_eval_file,
+    )
     return train, eval_ex
