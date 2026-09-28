@@ -17,6 +17,32 @@ Run everything at once:
 python scripts/run_phase0.py --config configs/phase0.yaml
 ```
 
+## Stage-2 LoRA baseline — the "one real number"
+
+The uniform-LoRA fine-tuning baseline the interpretability-guided Circuit-Routing
+Adapter will be measured against. It fine-tunes the pinned **fp16** base with a
+uniform LoRA on `q_proj` + `o_proj` (the head-aligned projections the per-head
+routing mask will target) for English→Hindi translation, then reports one
+comparable number: **base vs. LoRA mean per-token teacher-forced log-probability**
+of the Hindi target on a held-out split (same metric as Stage-1 tracing).
+
+```bash
+# Cluster (self-chaining, resumable, saves gracefully before the ~6h kill):
+sbatch cluster/train_lora_baseline.slurm
+
+# Or directly (grep the log for the line starting `RESULT`):
+python scripts/train_lora_baseline.py --config configs/lora_baseline.yaml
+python scripts/train_lora_baseline.py --config configs/lora_baseline.yaml \
+    --resume runs/lora-baseline-<timestamp>
+```
+
+Data source (config `data:` section): point `jsonl_train` at a local
+`{"en","hi"}`-per-line file — this is where the finetuning task split drops in —
+otherwise it falls back to the `cfilt/iitb-english-hindi` parallel corpus.
+Prefetch both the base weights and the dataset on a login node before submitting
+(the GPU node runs offline); see the NOTE in the SLURM template.
+
+
 ## Environment
 
 This code targets a **single small GPU on the cluster** (CUDA + bitsandbytes).
