@@ -58,11 +58,3 @@ To determine if Language and Script translation utilize the same circuits inside
 
 ---
 
-## 3. Concrete Timeline
-
-With Daniel's Stage 1 Trace complete, the project timeline follows strictly:
-
-1. **Jawed (Stage 2 - Mid October):** Use the high-scoring head coordinates from `runs/full_trace_results.json` to configure localized LoRA adapters. Will target only the highly-correlated overlapping heads to improve English->Hinglish finetuning without catastrophic forgetting.
-2. **Satyam (Late October):** Collate full-scale benchmark datasets and assist Jawed with Colab-side notebook prototyping.
-3. **Bala (Early November):** Aggregate metrics, perform end-to-end benchmarking of Jawed's adapters against base models, and finalize Phase 3.
-4. **Final Submission (November):** Complete codebase delivery.
