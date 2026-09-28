@@ -13,8 +13,9 @@
 # ---------------------------------------------------------------------------
 # Stage-2 uniform-LoRA fine-tuning baseline -- the "one real number".
 #
-# Produces base-vs-LoRA mean target log-prob on a held-out English->Hindi split
-# (grep the .out for a line starting `RESULT`). fp16, LoRA on q_proj+o_proj.
+# Produces base-vs-LoRA sentiment accuracy / macro-F1 on the frozen SAIL-2017
+# Romanized (Hinglish) validation split (grep the .out for a line starting
+# `RESULT`). fp16, LoRA on q_proj+o_proj.
 #
 # Submit from the repo root (the jawed/ sub-repo):
 #     sbatch cluster/train_lora_baseline.slurm
