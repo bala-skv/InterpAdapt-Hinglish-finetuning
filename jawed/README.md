@@ -22,9 +22,12 @@ python scripts/run_phase0.py --config configs/phase0.yaml
 The uniform-LoRA fine-tuning baseline the interpretability-guided Circuit-Routing
 Adapter will be measured against. It fine-tunes the pinned **fp16** base with a
 uniform LoRA on `q_proj` + `o_proj` (the head-aligned projections the per-head
-routing mask will target) for English→Hindi translation, then reports one
-comparable number: **base vs. LoRA mean per-token teacher-forced log-probability**
-of the Hindi target on a held-out split (same metric as Stage-1 tracing).
+routing mask will target) for **SAIL-2017 Romanized (Hinglish) code-mixed
+sentiment classification** (`negative` / `neutral` / `positive`), then reports one
+comparable number: **base vs. LoRA sentiment accuracy / macro-F1** on the frozen
+held-out validation split. The task is framed as label-word generation and scored
+by ranking the three label verbalizers by teacher-forced log-probability (same
+scoring machinery as Stage-1 tracing).
 
 ```bash
 # Cluster (self-chaining, resumable, saves gracefully before the ~6h kill):
@@ -36,9 +39,12 @@ python scripts/train_lora_baseline.py --config configs/lora_baseline.yaml \
     --resume runs/lora-baseline-<timestamp>
 ```
 
-Data source (config `data:` section): point `jsonl_train` at a local
-`{"en","hi"}`-per-line file — this is where the finetuning task split drops in —
-otherwise it falls back to the `cfilt/iitb-english-hindi` parallel corpus.
+Data source (config `data:` section): defaults to Satyam's frozen, de-duplicated
+SAIL-2017 Romanized Stage-2 splits on the Hub
+(`satyam-arora-iiit-hyderabad/babyshark-sail2017-stage2`,
+train 10,068 / validation 1,260 / test 1,261). Each row is a `"<post>\t<label>"`
+text string. To retrain on a refreshed split, point `jsonl_train` at a local
+`{"text","label"}`-per-line file — nothing else changes.
 Prefetch both the base weights and the dataset on a login node before submitting
 (the GPU node runs offline); see the NOTE in the SLURM template.
 

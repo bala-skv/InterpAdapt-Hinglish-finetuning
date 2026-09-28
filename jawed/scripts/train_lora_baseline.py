@@ -45,8 +45,10 @@ from typing import List, Optional
 
 from circuit_routing.config import ModelConfig, QuantConfig
 from circuit_routing.data import (
-    Pair,
+    Example,
+    LABELS,
     PROMPT_TEMPLATE,
+    VERBALIZER,
     collate_batch,
     encode_example,
     load_splits,
@@ -71,12 +73,12 @@ class LoraCfg:
 class DataCfg:
     jsonl_train: Optional[str] = None
     jsonl_eval: Optional[str] = None
-    hf_dataset: Optional[str] = "cfilt/iitb-english-hindi"
+    hf_dataset: Optional[str] = "satyam-arora-iiit-hyderabad/babyshark-sail2017-stage2"
     hf_config: Optional[str] = None
     hf_train_split: str = "train"
     hf_eval_split: str = "validation"
-    train_size: Optional[int] = 4000
-    eval_size: Optional[int] = 200
+    train_size: Optional[int] = None
+    eval_size: Optional[int] = None
     max_len: int = 256
 
 
@@ -141,34 +143,17 @@ def load_baseline_config(path: Optional[str]) -> BaselineConfig:
 
 
 # --------------------------------------------------------------------------- #
-# Eval metric (teacher-forced target log-prob; mirrors Stage-1 scoring)
+# Eval metric (3-class sentiment accuracy / macro-F1; label-verbalizer ranking)
 # --------------------------------------------------------------------------- #
-def _common_prefix_len(a: List[int], b: List[int]) -> int:
-    n = 0
-    for x, y in zip(a, b):
-        if x != y:
-            break
-        n += 1
-    return n
+def _label_logp(model, full_ids: List[int], n_prompt: int, device) -> float:
+    """Mean per-token log P(label tokens | prompt), teacher-forced.
 
-
-def score_pair(model, tokenizer, pair: Pair, device, max_len: int) -> Optional[float]:
-    """Mean per-token log P(hi_target | prompt), teacher-forced. None if empty."""
+    Length-normalized so labels that tokenize into different numbers of pieces
+    ("negative"/"neutral"/"positive") are ranked fairly.
+    """
     import torch
 
-    prompt = PROMPT_TEMPLATE.format(en=pair.en)
-    prompt_ids = tokenizer.encode(prompt, add_special_tokens=False)
-    full_ids = tokenizer.encode(prompt + pair.hi, add_special_tokens=False)
-
-    n_prompt = len(prompt_ids)
-    if full_ids[:n_prompt] != prompt_ids:  # BPE merge across the boundary
-        n_prompt = _common_prefix_len(prompt_ids, full_ids)
-
-    full_ids = full_ids[:max_len]
     n_target = len(full_ids) - n_prompt
-    if n_target <= 0:
-        return None
-
     ids = torch.tensor([full_ids], device=device)
     with torch.no_grad():
         logits = model(ids).logits[0].float()
@@ -179,36 +164,72 @@ def score_pair(model, tokenizer, pair: Pair, device, max_len: int) -> Optional[f
     return total / n_target
 
 
-def evaluate(model, tokenizer, pairs: List[Pair], device, max_len: int) -> dict:
-    """Base-vs-LoRA mean target log-prob over the eval split.
+def classify(model, tokenizer, ex: Example, device, max_len: int, label_ids: dict) -> str:
+    """Predict a label by picking the verbalizer with the highest mean log-prob."""
+    prompt_ids = tokenizer.encode(
+        PROMPT_TEMPLATE.format(text=ex.text), add_special_tokens=False
+    )
+    max_label = max(len(t) for t in label_ids.values())
+    prompt_ids = prompt_ids[: max_len - max_label]  # always leave room for the label
+    n_prompt = len(prompt_ids)
+
+    best_label, best_score = LABELS[0], float("-inf")
+    for label in LABELS:
+        full_ids = prompt_ids + label_ids[label]
+        score = _label_logp(model, full_ids, n_prompt, device)
+        if score > best_score:
+            best_score, best_label = score, label
+    return best_label
+
+
+def _macro_f1(gold: List[str], pred: List[str]) -> float:
+    """Unweighted mean of per-class F1 over the fixed label set."""
+    f1s = []
+    for label in LABELS:
+        tp = sum(1 for g, p in zip(gold, pred) if g == label and p == label)
+        fp = sum(1 for g, p in zip(gold, pred) if g != label and p == label)
+        fn = sum(1 for g, p in zip(gold, pred) if g == label and p != label)
+        prec = tp / (tp + fp) if (tp + fp) else 0.0
+        rec = tp / (tp + fn) if (tp + fn) else 0.0
+        f1s.append(2 * prec * rec / (prec + rec) if (prec + rec) else 0.0)
+    return sum(f1s) / len(f1s)
+
+
+def evaluate(model, tokenizer, examples: List[Example], device, max_len: int) -> dict:
+    """Base-vs-LoRA sentiment accuracy + macro-F1 over the eval split.
 
     The base score is read with the adapter disabled, so both numbers come from
     the single adapted model.
     """
-    import math
-
     model.eval()
+    # Verbalizer token ids reused across every example.
+    label_ids = {
+        label: tokenizer.encode(VERBALIZER[label], add_special_tokens=False)
+        for label in LABELS
+    }
+    gold = [ex.label for ex in examples]
 
-    def _mean_logp(active: bool) -> tuple[float, int]:
-        scores = []
+    def _predict(active: bool) -> List[str]:
         ctx = _adapter_context(model, active)
         with ctx:
-            for p in pairs:
-                s = score_pair(model, tokenizer, p, device, max_len)
-                if s is not None:
-                    scores.append(s)
-        mean = sum(scores) / len(scores) if scores else float("nan")
-        return mean, len(scores)
+            return [classify(model, tokenizer, ex, device, max_len, label_ids)
+                    for ex in examples]
 
-    lora_logp, n = _mean_logp(active=True)
-    base_logp, _ = _mean_logp(active=False)
+    lora_pred = _predict(active=True)
+    base_pred = _predict(active=False)
+    n = len(examples)
+
+    def _acc(pred):
+        return sum(1 for g, p in zip(gold, pred) if g == p) / n if n else float("nan")
+
+    base_acc, lora_acc = _acc(base_pred), _acc(lora_pred)
     return {
         "n_eval": n,
-        "base_logp": base_logp,
-        "lora_logp": lora_logp,
-        "delta_logp": lora_logp - base_logp,
-        "base_ppl": math.exp(-base_logp) if base_logp == base_logp else float("nan"),
-        "lora_ppl": math.exp(-lora_logp) if lora_logp == lora_logp else float("nan"),
+        "base_acc": base_acc,
+        "lora_acc": lora_acc,
+        "delta_acc": lora_acc - base_acc,
+        "base_macro_f1": _macro_f1(gold, base_pred),
+        "lora_macro_f1": _macro_f1(gold, lora_pred),
     }
 
 
@@ -306,7 +327,7 @@ def train(cfg: BaselineConfig, run_dir: Path, resume: bool, log) -> dict:
     tokenizer = load_tokenizer(cfg.model)
 
     log.info("loading data...")
-    train_pairs, eval_pairs = load_splits(
+    train_ex, eval_ex = load_splits(
         jsonl_train=cfg.data.jsonl_train,
         jsonl_eval=cfg.data.jsonl_eval,
         hf_dataset=cfg.data.hf_dataset,
@@ -316,11 +337,11 @@ def train(cfg: BaselineConfig, run_dir: Path, resume: bool, log) -> dict:
         train_size=cfg.data.train_size,
         eval_size=cfg.data.eval_size,
     )
-    log.info("train=%d eval=%d pairs", len(train_pairs), len(eval_pairs))
-    if not train_pairs or not eval_pairs:
+    log.info("train=%d eval=%d examples", len(train_ex), len(eval_ex))
+    if not train_ex or not eval_ex:
         raise SystemExit("empty train/eval split; check the data config")
 
-    encoded = [encode_example(tokenizer, p, cfg.data.max_len) for p in train_pairs]
+    encoded = [encode_example(tokenizer, p, cfg.data.max_len) for p in train_ex]
     loader = DataLoader(
         encoded,
         batch_size=cfg.train.batch_size,
@@ -383,9 +404,9 @@ def train(cfg: BaselineConfig, run_dir: Path, resume: bool, log) -> dict:
             log.info("checkpoint @ step %d -> %s", step, ckpt_path)
 
         if cfg.train.eval_every and step % cfg.train.eval_every == 0:
-            m = evaluate(model, tokenizer, eval_pairs, device, cfg.data.max_len)
-            log.info("[eval @ %d] base=%.4f lora=%.4f delta=%+.4f",
-                     step, m["base_logp"], m["lora_logp"], m["delta_logp"])
+            m = evaluate(model, tokenizer, eval_ex, device, cfg.data.max_len)
+            log.info("[eval @ %d] base_acc=%.4f lora_acc=%.4f delta=%+.4f",
+                     step, m["base_acc"], m["lora_acc"], m["delta_acc"])
             model.train()
 
     save_checkpoint(ckpt_path, model, optimizer, scheduler, step)
@@ -397,7 +418,7 @@ def train(cfg: BaselineConfig, run_dir: Path, resume: bool, log) -> dict:
         return {"interrupted": True, "step": step}
 
     log.info("training complete at step %d; running final eval...", step)
-    metrics = evaluate(model, tokenizer, eval_pairs, device, cfg.data.max_len)
+    metrics = evaluate(model, tokenizer, eval_ex, device, cfg.data.max_len)
     metrics["step"] = step
 
     # Save the adapter separately so it can be reloaded without the optimizer.
@@ -443,10 +464,10 @@ def main() -> int:
 
     # The one real number, printed for easy grep from the SLURM log.
     log.info(
-        "RESULT n_eval=%d base_logp=%.4f lora_logp=%.4f delta_logp=%+.4f "
-        "base_ppl=%.3f lora_ppl=%.3f",
-        metrics["n_eval"], metrics["base_logp"], metrics["lora_logp"],
-        metrics["delta_logp"], metrics["base_ppl"], metrics["lora_ppl"],
+        "RESULT n_eval=%d base_acc=%.4f lora_acc=%.4f delta_acc=%+.4f "
+        "base_macro_f1=%.4f lora_macro_f1=%.4f",
+        metrics["n_eval"], metrics["base_acc"], metrics["lora_acc"],
+        metrics["delta_acc"], metrics["base_macro_f1"], metrics["lora_macro_f1"],
     )
     return 0
 

@@ -1,19 +1,22 @@
-"""Parallel English -> Hindi data for the LoRA fine-tuning baseline.
+"""SAIL-2017 Romanized (Hinglish) sentiment data for the LoRA baseline.
 
-The baseline is a supervised generation task: given an English sentence, produce
-its Hindi (Devanagari) translation. Loss is computed on the Hindi target only --
-the prompt tokens are masked with ``IGNORE_INDEX`` so the model is scored on
-translating, not on echoing the prompt. This matches the Stage-1 teacher-forced
-target-probability metric, so the baseline number is on the same scale as the
-tracing scores.
+The Stage-2 task is 3-class sentiment classification on code-mixed
+Hindi-English social-media text: given a Romanized (Hinglish) post, predict
+``negative`` / ``neutral`` / ``positive``. We frame it as label-word generation
+so a causal LM (Qwen2.5-1.5B) can be scored the same way as Stage-1 tracing:
+teacher-forced log P(label | prompt), with the prompt masked out of the loss.
+The reported number is classification **accuracy / macro-F1**, computed by
+ranking the three label verbalizers by their per-token log-prob (argmax).
 
-Two sources are supported:
+Data source: Satyam's frozen, de-duplicated Romanized Stage-2 splits on the Hub
+(``satyam-arora-iiit-hyderabad/babyshark-sail2017-stage2``,
+train 10,068 / validation 1,260 / test 1,261). Each HF row is a single ``text``
+string of the form ``"<post>\\t<label>"`` -- the gold label is tab-separated at
+the end and posts may contain embedded newlines. We parse on the final tab and
+validate the label, merging any stray continuation lines defensively.
 
-* a local JSONL file, one ``{"en": ..., "hi": ...}`` object per line. This is
-  where the finetuning task drops in when Satyam's split lands -- point the
-  config at it and nothing else changes.
-* a Hugging Face parallel corpus (default ``cfilt/iitb-english-hindi``), used
-  when no local file is given. Its rows are ``{"translation": {"en", "hi"}}``.
+A local JSONL source (``{"text","label"}`` per line) is also supported and takes
+precedence, so a refreshed split can drop in with no code change.
 
 Owner: Jawed (Stage 2 baseline).
 """
@@ -22,12 +25,25 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional
+from typing import Iterable, List, Optional, Tuple
 
-# Prompt shown to the model. The trailing space keeps the first Hindi token off
-# the ``Hindi:`` label boundary, which the Stage-1 tokenizer analysis showed
-# matters for Devanagari BPE fragmentation.
-PROMPT_TEMPLATE = "English: {en}\nHindi: "
+# The three SAIL-2017 sentiment classes (order fixed for reproducible reporting).
+LABELS: List[str] = ["negative", "neutral", "positive"]
+LABEL_SET = set(LABELS)
+
+# Verbalizer: the exact target string generated/scored for each label. The
+# leading space follows GPT-style BPE, keeping the label on its own token
+# boundary after the ``Sentiment:`` prompt tail.
+VERBALIZER = {label: " " + label for label in LABELS}
+
+# Instruction-style prompt. A clear instruction helps the *base* (zero-shot)
+# model too, which keeps the base-vs-LoRA comparison honest.
+PROMPT_TEMPLATE = (
+    "Classify the sentiment of this Hindi-English code-mixed social media post "
+    "as negative, neutral, or positive.\n"
+    "Post: {text}\n"
+    "Sentiment:"
+)
 
 # HuggingFace / PyTorch convention: positions with this label are skipped by the
 # cross-entropy loss.
@@ -35,82 +51,91 @@ IGNORE_INDEX = -100
 
 
 @dataclass
-class Pair:
-    """One supervised translation example."""
+class Example:
+    """One supervised sentiment example."""
 
-    en: str
-    hi: str
+    text: str
+    label: str
 
 
 def _clean(text: str) -> str:
-    """Collapse whitespace; parallel corpora are full of stray tabs/newlines."""
+    """Collapse internal whitespace/newlines into single spaces."""
     return " ".join(str(text).strip().split())
 
 
-def load_pairs_jsonl(path: str | Path, limit: Optional[int] = None) -> List[Pair]:
-    """Read ``{"en", "hi"}`` objects from a JSONL file (Satyam's task format)."""
-    pairs: List[Pair] = []
+def _iter_records(text_rows: Iterable[str]) -> Iterable[Tuple[str, str]]:
+    """Yield ``(post, label)`` from raw ``text`` rows of the form ``post\\tlabel``.
+
+    Robust to two on-Hub layouts: complete records per row (the common case) and
+    posts whose embedded newlines were split across rows by a text loader. A row
+    only *completes* a record when its final tab-separated field is a valid
+    label; otherwise it is buffered as a continuation of the current post.
+    """
+    buf: List[str] = []
+    for raw in text_rows:
+        raw = str(raw).rstrip("\r\n")
+        if "\t" in raw:
+            pre, tail = raw.rsplit("\t", 1)
+            label = tail.strip().lower()
+            if label in LABEL_SET:
+                buf.append(pre)
+                post = _clean("\n".join(buf))
+                buf = []
+                if post:
+                    yield post, label
+                continue
+        buf.append(raw)  # continuation line (no valid trailing label)
+    # any trailing buffer without a label is incomplete -> dropped
+
+
+def load_examples_jsonl(path: str | Path, limit: Optional[int] = None) -> List[Example]:
+    """Read ``{"text","label"}`` objects from a JSONL file (local task format)."""
+    out: List[Example] = []
     with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
                 continue
             obj = json.loads(line)
-            en, hi = _clean(obj["en"]), _clean(obj["hi"])
-            if en and hi:
-                pairs.append(Pair(en, hi))
-            if limit is not None and len(pairs) >= limit:
+            text = _clean(obj["text"])
+            label = str(obj["label"]).strip().lower()
+            if text and label in LABEL_SET:
+                out.append(Example(text, label))
+            if limit is not None and len(out) >= limit:
                 break
-    return pairs
+    return out
 
 
-def load_pairs_hf(
+def load_examples_hf(
     dataset_name: str,
     split: str,
     limit: Optional[int] = None,
     config_name: Optional[str] = None,
-    en_key: str = "en",
-    hi_key: str = "hi",
-) -> List[Pair]:
-    """Stream a HF parallel corpus into ``Pair``s.
-
-    Handles both the nested ``{"translation": {...}}`` layout (IIT-B) and a flat
-    ``{"en": ..., "hi": ...}`` layout. ``streaming=True`` avoids downloading the
-    full multi-GB corpus when only a small ``limit`` is needed for one number.
-    """
+    text_key: str = "text",
+) -> List[Example]:
+    """Load a SAIL split from the Hub and parse the ``post\\tlabel`` text column."""
     from datasets import load_dataset
 
-    stream = limit is not None
-    ds = load_dataset(
-        dataset_name,
-        config_name,
-        split=split,
-        streaming=stream,
-    )
-    pairs: List[Pair] = []
-    for row in ds:
-        rec = row.get("translation", row) if isinstance(row, dict) else row
-        try:
-            en, hi = _clean(rec[en_key]), _clean(rec[hi_key])
-        except (KeyError, TypeError):
-            continue
-        if en and hi:
-            pairs.append(Pair(en, hi))
-        if limit is not None and len(pairs) >= limit:
+    ds = load_dataset(dataset_name, config_name, split=split)
+    rows = (row[text_key] for row in ds)
+    out: List[Example] = []
+    for post, label in _iter_records(rows):
+        out.append(Example(post, label))
+        if limit is not None and len(out) >= limit:
             break
-    return pairs
+    return out
 
 
-def encode_example(tokenizer, pair: Pair, max_len: int):
-    """Tokenize one ``Pair`` into ``(input_ids, labels)`` with the prompt masked.
+def encode_example(tokenizer, ex: Example, max_len: int):
+    """Tokenize one ``Example`` into ``(input_ids, labels)`` with the prompt masked.
 
     ``labels`` is ``IGNORE_INDEX`` over the prompt span and the true token ids
-    over the Hindi target (plus EOS), so the loss only sees the translation.
+    over the label verbalizer (plus EOS), so the loss only sees the label word.
     """
     prompt_ids = tokenizer.encode(
-        PROMPT_TEMPLATE.format(en=pair.en), add_special_tokens=False
+        PROMPT_TEMPLATE.format(text=ex.text), add_special_tokens=False
     )
-    target_ids = tokenizer.encode(pair.hi, add_special_tokens=False)
+    target_ids = tokenizer.encode(VERBALIZER[ex.label], add_special_tokens=False)
     if tokenizer.eos_token_id is not None:
         target_ids = target_ids + [tokenizer.eos_token_id]
 
@@ -152,38 +177,25 @@ def load_splits(
     train_size: Optional[int] = None,
     eval_size: Optional[int] = None,
 ):
-    """Resolve train/eval ``Pair`` lists from whichever source is configured.
+    """Resolve train/eval ``Example`` lists from whichever source is configured.
 
-    Local JSONL takes precedence over the HF corpus so the moment Satyam's task
-    file exists the baseline retrains on it with no code change.
+    Local JSONL takes precedence over the Hub split so a refreshed local task
+    file retrains the baseline with no code change.
     """
     if jsonl_train:
-        train = load_pairs_jsonl(jsonl_train, limit=train_size)
+        train = load_examples_jsonl(jsonl_train, limit=train_size)
         if jsonl_eval:
-            eval_pairs = load_pairs_jsonl(jsonl_eval, limit=eval_size)
+            eval_ex = load_examples_jsonl(jsonl_eval, limit=eval_size)
         else:
             # No dedicated eval file: hold out the tail of the train file.
             n_eval = eval_size or max(1, len(train) // 10)
-            eval_pairs, train = train[-n_eval:], train[:-n_eval]
-        return train, eval_pairs
+            eval_ex, train = train[-n_eval:], train[:-n_eval]
+        return train, eval_ex
 
     if not hf_dataset:
         raise ValueError(
             "no data source configured: set data.jsonl_train or data.hf_dataset"
         )
-    if hf_eval_split:
-        # Separate eval split (may be a different domain than train).
-        train = load_pairs_hf(hf_dataset, hf_train_split, limit=train_size, config_name=hf_config)
-        eval_pairs = load_pairs_hf(hf_dataset, hf_eval_split, limit=eval_size, config_name=hf_config)
-        return train, eval_pairs
-
-    # hf_eval_split is null -> carve the eval set from the tail of the train
-    # split so both are the SAME distribution. This isolates "did LoRA learn the
-    # task" from any train-vs-official-dev domain shift.
-    n_eval = eval_size or 200
-    total = (train_size + n_eval) if train_size else None
-    combined = load_pairs_hf(hf_dataset, hf_train_split, limit=total, config_name=hf_config)
-    if len(combined) <= n_eval:
-        raise ValueError(f"not enough data ({len(combined)}) to hold out {n_eval} eval examples")
-    eval_pairs, train = combined[-n_eval:], combined[:-n_eval]
-    return train, eval_pairs
+    train = load_examples_hf(hf_dataset, hf_train_split, limit=train_size, config_name=hf_config)
+    eval_ex = load_examples_hf(hf_dataset, hf_eval_split, limit=eval_size, config_name=hf_config)
+    return train, eval_ex

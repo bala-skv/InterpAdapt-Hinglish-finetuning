@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Stage-2 uniform-LoRA fine-tuning baseline -- the "one real number".
 # Consumed by scripts/train_lora_baseline.py (its own dataclasses; NOT the
-# Phase-0 config loader). Reports base-vs-LoRA mean target log-prob on a
-# held-out English->Hindi eval split.
+# Phase-0 config loader). Reports base-vs-LoRA sentiment accuracy / macro-F1 on
+# Satyam's frozen SAIL-2017 Romanized (Hinglish) code-mixed validation split.
 # ---------------------------------------------------------------------------
 
 output_dir: "runs"
@@ -27,27 +27,25 @@ quant:
 lora:
   rank: 8
   alpha: 16
-  dropout: 0.05             # light regularization to curb overfitting on the small set
+  dropout: 0.05             # small dropout: the SAIL train split is tiny (~10k)
   # Head-aligned projections (blocks of head_dim). k/v are KV-group aligned, so
   # the future per-head routing mask can only live on q_proj/o_proj -- the
   # uniform baseline shares that surface for an apples-to-apples comparison.
   target_modules: ["q_proj", "o_proj"]
 
 data:
-  # Local task file takes precedence -- point jsonl_train at Satyam's split
-  # ({"en","hi"} per line) when it lands and nothing else changes.
+  # Local task file takes precedence -- point jsonl_train at a refreshed split
+  # ({"text","label"} per line) if one lands and nothing else changes.
   jsonl_train: null
   jsonl_eval: null
-  # Fallback parallel corpus (IIT-B English-Hindi) for a self-contained number.
-  hf_dataset: "cfilt/iitb-english-hindi"
+  # Satyam's frozen, de-duplicated SAIL-2017 Romanized Stage-2 splits.
+  # Each row is a "<post>\t<label>" text string; labels: negative/neutral/positive.
+  hf_dataset: "satyam-arora-iiit-hyderabad/babyshark-sail2017-stage2"
   hf_config: null
-  hf_train_split: "train"
-  # null -> hold the eval set out from the TAIL of the train split (same
-  # distribution), so the number measures task learning, not the IITB train-vs-dev
-  # domain shift. Set to "validation"/"test" to score the official split instead.
-  hf_eval_split: null
-  train_size: 8000          # small on purpose: one defensible number, fast
-  eval_size: 200
+  hf_train_split: "train"        # 10,068 examples
+  hf_eval_split: "validation"    # 1,260 examples
+  train_size: null          # null = full frozen train split
+  eval_size: null           # null = full frozen validation split
   max_len: 256
 
 train:
@@ -55,10 +53,11 @@ train:
   deterministic: true
   batch_size: 4
   grad_accum_steps: 8       # effective batch 32
-  lr: 5.0e-5               # lowered from 2e-4: 2e-4 overfit (train ppl 1.35 vs eval 4.4)
+  lr: 1.0e-4
   weight_decay: 0.01
-  warmup_steps: 20
-  max_steps: 400
-  ckpt_every: 50            # resumable checkpoints to the durable run dir
-  eval_every: 100          # periodic eval to watch for over/under-fitting
+  warmup_steps: 30
+  max_steps: 600            # ~2 epochs over 10k examples at eff-batch 32
+  ckpt_every: 100           # resumable checkpoints to the durable run dir
+  eval_every: 200           # periodic base-vs-LoRA accuracy checks
   max_grad_norm: 1.0
+
