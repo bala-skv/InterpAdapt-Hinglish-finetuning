@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local caches (never commit downloaded weights/datasets)
+.cache/
+.hf_cache/
+hf_cache/
+wandb/
+
+# Run artefacts (checkpoints, logs) -- keep the repo lean; results live in W&B
+runs/
+logs/
+*.log
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Archives / scratch
+*.zip
