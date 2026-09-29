@@ -113,6 +113,69 @@ def random_mask(num_heads: int, k: int, *, generator: Optional[torch.Generator] 
 
 
 # --------------------------------------------------------------------------- #
+# GLOBAL mask builders (the PRIMARY scope). These share ONE scale / threshold
+# across ALL ``L*H`` heads, so a noisy layer whose best head is near zero is NOT
+# forced to a full gate the way per-layer min-max / per-layer top-k would. The
+# per-layer builders above are kept as the ablation control.
+# --------------------------------------------------------------------------- #
+def soft_mask_from_scores_global(
+    scores_2d: Sequence[Sequence[float]], *, floor: float = 0.0
+) -> torch.Tensor:
+    """Global soft gate ``M = clip(s, 0) / max_global(clip(s, 0))`` as ``[L, H]``.
+
+    Negatives are clipped to 0 and the scale is the single global maximum, so a
+    head only gets a large gate if it is large *relative to the strongest head in
+    the whole model* -- unlike per-layer min-max, a weak layer's best head stays
+    near zero. ``floor`` optionally lifts the range to ``[floor, 1]``.
+    """
+    s = torch.as_tensor([list(r) for r in scores_2d], dtype=torch.float32)  # [L, H]
+    pos = s.clamp(min=0.0)
+    gmax = float(pos.max())
+    if gmax < 1e-12:
+        return torch.ones_like(s)
+    g = pos / gmax
+    if floor > 0.0:
+        g = floor + (1.0 - floor) * g
+    return g
+
+
+def topk_mask_from_scores_global(
+    scores_2d: Sequence[Sequence[float]], k_total: int
+) -> torch.Tensor:
+    """Global hard top-k: 1 on the ``k_total`` highest-scoring heads across ALL
+    ``L*H`` heads (strong layers may win several heads, noisy layers none), else
+    0. Returned as ``[L, H]``."""
+    s = torch.as_tensor([list(r) for r in scores_2d], dtype=torch.float32)
+    num_layers, num_heads = s.shape
+    n = num_layers * num_heads
+    if not 0 <= k_total <= n:
+        raise ValueError(f"k_total={k_total} out of range for {n} heads")
+    flat = torch.zeros(n)
+    if k_total > 0:
+        top = torch.topk(s.flatten(), k_total).indices
+        flat[top] = 1.0
+    return flat.view(num_layers, num_heads)
+
+
+def random_mask_global(
+    num_layers: int, num_heads: int, k_total: int, *, generator: Optional[torch.Generator] = None
+) -> torch.Tensor:
+    """Global matched-budget control: ``k_total`` random heads over all ``L*H``.
+
+    Use the SAME ``k_total`` as :func:`topk_mask_from_scores_global` so the global
+    random control and the global top-k adapt an equal number of heads.
+    """
+    n = num_layers * num_heads
+    if not 0 <= k_total <= n:
+        raise ValueError(f"k_total={k_total} out of range for {n} heads")
+    flat = torch.zeros(n)
+    if k_total > 0:
+        perm = torch.randperm(n, generator=generator)[:k_total]
+        flat[perm] = 1.0
+    return flat.view(num_layers, num_heads)
+
+
+# --------------------------------------------------------------------------- #
 # The wrapper
 # --------------------------------------------------------------------------- #
 class MaskedLoRALinear(nn.Module):

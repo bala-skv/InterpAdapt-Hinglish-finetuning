@@ -3,10 +3,13 @@
 # Consumed by scripts/train_cra_compare.py. Run ONE arm per invocation
 # (cra.mask_mode or --mask-mode); compare the RESULT lines / W&B across arms:
 #   uniform  -> reproduces the LoRA baseline (sanity)
-#   soft     -> soft scaling M = f(s_i) from Stage-1 scores (the CRA)
-#   topk     -> hard top-k heads per layer
-#   random   -> k random heads per layer at the SAME budget as topk (control)
-# Same SAIL-2017 Romanized (Hinglish) sentiment task + metric as the baseline.
+#   soft     -> soft scaling M = clip(s,0)/global_max from Stage-1 v2 scores (CRA)
+#   topk     -> hard top-k heads over ALL 336 heads (global scope)
+#   random   -> k_total random heads at the SAME budget as topk (control)
+# PRIMARY scope is GLOBAL: one scale/threshold across all L*H=336 heads, so a
+# noisy layer's best head is not forced to a full gate. scope=per_layer is the
+# ablation control. Same SAIL-2017 Romanized (Hinglish) sentiment task + metric
+# (validation macro-F1) as the baseline.
 # ---------------------------------------------------------------------------
 
 output_dir: "runs"
@@ -29,17 +32,23 @@ quant:
 cra:
   # uniform | soft | topk | random. Override per run with --mask-mode.
   mask_mode: "soft"
+  # PRIMARY scope. global -> one scale/threshold across all 336 heads;
+  # per_layer -> the ablation control (per-layer min-max soft / per-layer top-k).
+  scope: "global"
   rank: 8
   alpha: 16
   dropout: 0.05
   target_modules: ["q_proj", "o_proj"]
-  # Daniel's Stage-1 per-(layer, query-head) causal scores:
+  # Daniel's Stage-1 v2 per-(layer, query-head) causal scores (regenerated from
+  # interp/runs/full_trace_v2.json -> summary.en_hi-latn.heatmap_mean):
   #   {"scores": [[<head0>, ...], ...]}   shape [28][12]
   # REQUIRED for soft/topk/random; leave null only for mask_mode=uniform.
   scores_file: "data/stage1_head_scores.json"
-  # topk / random: heads kept PER LAYER (matched budget across the two).
+  # per_layer topk/random: heads kept PER LAYER (matched budget across the two).
   k: 4
-  # soft: f(s_i) = min-max to [soft_floor, 1] (monotone). normalize=false -> raw s_i.
+  # global topk/random: heads kept across ALL 336 heads (matched budget).
+  k_total: 112
+  # soft: per_layer f(s_i)=min-max to [soft_floor,1]; global f(s_i)=clip(s,0)/global_max.
   soft_floor: 0.0
   soft_normalize: true
   # random: seed for the matched-budget random head set (reported in results).

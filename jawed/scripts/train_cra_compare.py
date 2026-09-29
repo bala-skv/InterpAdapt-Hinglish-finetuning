@@ -68,8 +68,11 @@ from circuit_routing.masked_lora import (
     adapted_budget,
     inject_masked_lora,
     random_mask,
+    random_mask_global,
     soft_mask_from_scores,
+    soft_mask_from_scores_global,
     topk_mask_from_scores,
+    topk_mask_from_scores_global,
     uniform_mask,
 )
 from circuit_routing.model_loading import load_model, load_tokenizer, verify_base_checkpoint
@@ -84,14 +87,20 @@ _MASK_MODES = ("uniform", "soft", "topk", "random")
 @dataclass
 class CraCfg:
     mask_mode: str = "soft"                       # uniform | soft | topk | random
+    # PRIMARY scope is "global": one scale/threshold shared across all L*H heads
+    # (a noisy layer's best head is NOT forced to a full gate). "per_layer" is
+    # the ablation control (per-layer min-max soft / per-layer top-k).
+    scope: str = "global"                         # global | per_layer
     rank: int = 8
     alpha: int = 16
     dropout: float = 0.05
     target_modules: List[str] = field(default_factory=lambda: ["q_proj", "o_proj"])
     # Stage-1 per-head causal scores; required for soft/topk/random.
     scores_file: Optional[str] = None
-    # topk / random: number of heads to keep PER LAYER (matched budget).
+    # per_layer topk/random: heads to keep PER LAYER (matched budget).
     k: int = 4
+    # global topk/random: heads to keep across ALL L*H heads (matched budget).
+    k_total: int = 112
     # soft: min-max floor for f(s_i) in [floor, 1]; normalize=False -> raw scores.
     soft_floor: float = 0.0
     soft_normalize: bool = True
@@ -218,6 +227,9 @@ def build_head_masks(cfg: CraConfig, layout, log) -> Optional[Dict[str, "object"
     random read the Stage-1 scores and build one mask per (layer, projection). A
     layer's q_proj and o_proj share that layer's head scores, so the same heads
     are routed on both the query and the output projection.
+
+    Scope is PRIMARY ``global`` (one scale/threshold across all ``L*H`` heads) or
+    the ``per_layer`` ablation control.
     """
     mode = cfg.cra.mask_mode
     if mode == "uniform":
@@ -229,34 +241,53 @@ def build_head_masks(cfg: CraConfig, layout, log) -> Optional[Dict[str, "object"
 
     import torch
 
+    scope = cfg.cra.scope
+    if scope not in ("global", "per_layer"):
+        raise ValueError(f"cra.scope must be 'global' or 'per_layer', got {scope!r}")
+
     scores = load_layer_head_scores(
         cfg.cra.scores_file, layout.num_layers, layout.num_attention_heads
     )
-    k = cfg.cra.k
-    gen = None
-    if mode == "random":
-        gen = torch.Generator().manual_seed(cfg.cra.random_seed)
+    n_heads = layout.num_attention_heads
 
-    def _mask_for_layer(row: List[float]):
+    if scope == "global":
         if mode == "soft":
-            return soft_mask_from_scores(
-                row, normalize=cfg.cra.soft_normalize, floor=cfg.cra.soft_floor
-            )
-        if mode == "topk":
-            return topk_mask_from_scores(row, k)
-        return random_mask(layout.num_attention_heads, k, generator=gen)
+            grid = soft_mask_from_scores_global(scores, floor=cfg.cra.soft_floor)
+        elif mode == "topk":
+            grid = topk_mask_from_scores_global(scores, cfg.cra.k_total)
+        else:  # random
+            gen = torch.Generator().manual_seed(cfg.cra.random_seed)
+            grid = random_mask_global(layout.num_layers, n_heads, cfg.cra.k_total, generator=gen)
+        per_layer = [grid[li] for li in range(layout.num_layers)]
+        log.info(
+            "built GLOBAL %s masks | active_heads=%d/%d (%s)",
+            mode, int((grid != 0).sum().item()), grid.numel(),
+            f"k_total={cfg.cra.k_total}" if mode in ("topk", "random") else "dense soft",
+        )
+    else:  # per_layer ablation control
+        k = cfg.cra.k
+        gen = torch.Generator().manual_seed(cfg.cra.random_seed) if mode == "random" else None
 
-    per_layer = [_mask_for_layer(row) for row in scores]
+        def _mask_for_layer(row: List[float]):
+            if mode == "soft":
+                return soft_mask_from_scores(
+                    row, normalize=cfg.cra.soft_normalize, floor=cfg.cra.soft_floor
+                )
+            if mode == "topk":
+                return topk_mask_from_scores(row, k)
+            return random_mask(n_heads, k, generator=gen)
+
+        per_layer = [_mask_for_layer(row) for row in scores]
+        log.info(
+            "built PER-LAYER %s masks for %d layers (%s), k=%s per layer",
+            mode, layout.num_layers, cfg.cra.target_modules,
+            k if mode in ("topk", "random") else "dense",
+        )
 
     # Attach the layer mask to both head-aligned projections in that layer.
     masks: Dict[str, object] = {}
     for name, leaf, layer_idx in _iter_layer_projections(cfg.cra.target_modules, layout.num_layers):
         masks[name] = per_layer[layer_idx]
-    log.info(
-        "built %s masks for %d layers (%s), k=%s per layer",
-        mode, layout.num_layers, cfg.cra.target_modules,
-        k if mode in ("topk", "random") else "dense",
-    )
     return masks
 
 
@@ -309,12 +340,13 @@ def build_cra_model(cfg: CraConfig, tokenizer, log):
         )
     budget = adapted_budget(wrappers)
     active = sum(w.active_heads for w in wrappers)
+    gpu_name = torch.cuda.get_device_name(0) if torch.cuda.is_available() else "cpu"
     major = torch.cuda.get_device_capability()[0] if torch.cuda.is_available() else None
     log.info(
-        "CRA[%s] r=%d on %s | wrappers=%d active_heads=%d budget=%d | "
-        "trainable %d / %d (%.3f%%) | device_cap=%s",
-        cfg.cra.mask_mode, cfg.cra.rank, cfg.cra.target_modules, len(wrappers),
-        active, budget, trainable, total, 100.0 * trainable / total, major,
+        "CRA[%s/%s] r=%d on %s | wrappers=%d active_heads=%d budget=%d | "
+        "trainable %d / %d (%.3f%%) | gpu=%s cap=%s",
+        cfg.cra.mask_mode, cfg.cra.scope, cfg.cra.rank, cfg.cra.target_modules, len(wrappers),
+        active, budget, trainable, total, 100.0 * trainable / total, gpu_name, major,
     )
     return model, wrappers, layout
 
@@ -535,14 +567,18 @@ def train(cfg: CraConfig, run_dir: Path, resume: bool, log) -> dict:
     model, wrappers, layout = build_cra_model(cfg, tokenizer, log)
     budget = adapted_budget(wrappers)
     active_heads = sum(w.active_heads for w in wrappers)
+    gpu_name = torch.cuda.get_device_name(0) if torch.cuda.is_available() else "cpu"
     # Snapshot the matched-budget accounting for the write-up / reviewer.
     write_json(run_dir / "budget.json", {
         "mask_mode": cfg.cra.mask_mode,
+        "scope": cfg.cra.scope,
         "adapted_budget": budget,
         "active_heads": active_heads,
         "num_wrappers": len(wrappers),
         "rank": cfg.cra.rank,
-        "k_per_layer": cfg.cra.k if cfg.cra.mask_mode in ("topk", "random") else None,
+        "k_per_layer": cfg.cra.k if cfg.cra.scope == "per_layer" and cfg.cra.mask_mode in ("topk", "random") else None,
+        "k_total": cfg.cra.k_total if cfg.cra.scope == "global" and cfg.cra.mask_mode in ("topk", "random") else None,
+        "gpu": gpu_name,
     })
 
     model.train()
@@ -623,14 +659,17 @@ def train(cfg: CraConfig, run_dir: Path, resume: bool, log) -> dict:
     metrics.update({
         "step": step,
         "mask_mode": cfg.cra.mask_mode,
+        "scope": cfg.cra.scope,
         "adapted_budget": budget,
         "active_heads": active_heads,
+        "gpu": gpu_name,
     })
 
     if wb is not None:
         num_metrics = {k: v for k, v in metrics.items() if isinstance(v, (int, float))}
         wb.log({f"final/{k}": v for k, v in num_metrics.items()}, step=step)
-        wb.summary.update({**num_metrics, "mask_mode": cfg.cra.mask_mode})
+        wb.summary.update({**num_metrics, "mask_mode": cfg.cra.mask_mode,
+                           "scope": cfg.cra.scope, "gpu": gpu_name})
         wb.finish()
     return metrics
 
@@ -678,11 +717,11 @@ def main() -> int:
     done_marker.write_text("ok\n", encoding="utf-8")
 
     log.info(
-        "RESULT mask_mode=%s n_eval=%d base_acc=%.4f cra_acc=%.4f delta_acc=%+.4f "
-        "base_macro_f1=%.4f cra_macro_f1=%.4f budget=%d active_heads=%d",
-        metrics["mask_mode"], metrics["n_eval"], metrics["base_acc"], metrics["cra_acc"],
+        "RESULT mask_mode=%s scope=%s n_eval=%d base_acc=%.4f cra_acc=%.4f delta_acc=%+.4f "
+        "base_macro_f1=%.4f cra_macro_f1=%.4f budget=%d active_heads=%d gpu=%s",
+        metrics["mask_mode"], metrics["scope"], metrics["n_eval"], metrics["base_acc"], metrics["cra_acc"],
         metrics["delta_acc"], metrics["base_macro_f1"], metrics["cra_macro_f1"],
-        metrics["adapted_budget"], metrics["active_heads"],
+        metrics["adapted_budget"], metrics["active_heads"], metrics["gpu"],
     )
     return 0
 

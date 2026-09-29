@@ -19,8 +19,11 @@ from circuit_routing.masked_lora import (
     MaskedLoRALinear,
     adapted_budget,
     random_mask,
+    random_mask_global,
     soft_mask_from_scores,
+    soft_mask_from_scores_global,
     topk_mask_from_scores,
+    topk_mask_from_scores_global,
     uniform_mask,
 )
 
@@ -179,6 +182,52 @@ def test_delta_is_differentiable_through_mask():
     print("PASS  gradients flow for active heads, zero for masked head")
 
 
+def test_global_masks_share_scale_across_layers():
+    """Global scope: one scale/threshold over ALL L*H heads (the primary mode).
+
+    Two layers: layer 0 has genuinely large scores, layer 1 is all near-zero
+    noise. Per-layer min-max would hand layer 1's best head a full 1.0 gate;
+    global scaling must keep every layer-1 head near zero.
+    """
+    L, H = 2, NUM_HEADS
+    scores = [
+        [1.0 * (h + 1) for h in range(H)],        # layer 0: real signal (max 12)
+        [1e-4 * (h + 1) for h in range(H)],       # layer 1: noise (max 1.2e-3)
+    ]
+
+    # --- global soft: clip(s,0)/global_max ---
+    soft = soft_mask_from_scores_global(scores)
+    assert soft.shape == (L, H)
+    assert abs(float(soft[0].max()) - 1.0) < 1e-6, "global soft max head must be 1.0"
+    assert float(soft[1].max()) < 1e-2, "noise layer's best head should stay near zero"
+    # A per-layer soft would instead saturate the noise layer to 1.0:
+    per_layer_noise = soft_mask_from_scores(scores[1])
+    assert abs(float(per_layer_noise.max()) - 1.0) < 1e-6
+
+    # negatives clip to zero
+    neg = soft_mask_from_scores_global([[-1.0, -2.0] + [0.0] * (H - 2)])
+    assert float(neg.min()) >= 0.0
+
+    # --- global top-k: k_total winners over all L*H, may be uneven per layer ---
+    k_total = H + 2                      # more than one layer's worth
+    top = topk_mask_from_scores_global(scores, k_total)
+    assert int(top.sum()) == k_total, "global top-k kept the wrong count"
+    assert int(top[0].sum()) == H and int(top[1].sum()) == 2, \
+        "global top-k should load the strong layer before the noise layer"
+
+    # --- global random control: SAME budget as global top-k ---
+    gen = torch.Generator().manual_seed(3)
+    rnd = random_mask_global(L, H, k_total, generator=gen)
+    assert int(rnd.sum()) == k_total, "global random has wrong sparsity"
+
+    # Budget match is over the whole grid: build wrappers for both layers.
+    top_wraps = [_wrapper("out", mask=top[i]) for i in range(L)]
+    rnd_wraps = [_wrapper("out", mask=rnd[i]) for i in range(L)]
+    assert adapted_budget(top_wraps) == adapted_budget(rnd_wraps), \
+        "global top-k and random are NOT budget-matched over the grid"
+    print("PASS  global masks share one scale/threshold across layers (budget-matched)")
+
+
 def test_fp16_base_keeps_fp32_adapter_and_is_finite():
     """On an fp16 base the LoRA factors must stay fp32 and produce finite grads.
 
@@ -267,6 +316,7 @@ def main() -> None:
     test_soft_mask_scales_delta()
     test_topk_and_random_matched_budget()
     test_delta_is_differentiable_through_mask()
+    test_global_masks_share_scale_across_layers()
     test_fp16_base_keeps_fp32_adapter_and_is_finite()
     test_inject_freezes_entire_base_model()
     print("\nAll masked-LoRA tests passed.")

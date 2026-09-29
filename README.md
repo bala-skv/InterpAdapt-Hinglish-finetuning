@@ -20,12 +20,26 @@ the frozen SAIL-2017 Romanized sentiment **validation** split (n=1260). Primary
 metric is **macro-F1**. The base model is at chance; a tiny LoRA nearly doubles it —
 this is the bar the Circuit-Routing Adapter must beat at matched budget.
 
-| Metric | Base Qwen2.5-1.5B | + Uniform LoRA | Δ |
+| Metric (validation, n=1260) | Base Qwen2.5-1.5B | + Uniform LoRA | Δ |
 |---|---|---|---|
 | Accuracy | 0.358 | **0.630** | +0.272 |
 | Macro-F1 | 0.319 | **0.607** | +0.288 |
 
-([W&B run `mn88apmt`](https://wandb.ai/phdiiitmohammed-iiit-hyderabad/babyshark-cra/runs/mn88apmt))
+All numbers are **validation** macro-F1 / accuracy on ADA (fp16, single GPU; the
+GPU name is logged per run). ([W&B run `mn88apmt`](https://wandb.ai/phdiiitmohammed-iiit-hyderabad/babyshark-cra/runs/mn88apmt))
+
+### Stage-2 CRA comparison (harness ready; runs pending)
+
+The matched-budget comparison — **global** soft `clip(s,0)/global_max`, **global**
+top-k over all 336 heads, and a budget-matched **random** control, vs. the uniform
+LoRA above — is implemented in `jawed/circuit_routing/masked_lora.py` +
+`jawed/scripts/train_cra_compare.py` and driven by `jawed/configs/cra_compare.yaml`
+(primary scope `global`). Head scores are Daniel's **v2** trace
+(`interp/runs/full_trace_v2.json` → `summary.en_hi-latn.heatmap_mean`, regenerated
+by `jawed/scripts/build_stage1_scores.py`). Numbers are **pending** — ADA was
+unavailable at submission; the four arms populate this table once the cluster is
+restored (all four on the same GPU for a fair comparison).
+
 
 ## Links (submission guidelines §3)
 

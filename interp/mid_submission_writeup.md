@@ -66,12 +66,12 @@ Instead of a heavily overlapping, monolithic circuit, a more accurate descriptio
 
 As the reference point the Circuit-Routing Adapter must beat, we fine-tuned a **uniform LoRA** (rank 8 on `q_proj` + `o_proj`, 0.089% of parameters, `fp16`, 600 steps) on the frozen **SAIL-2017 Romanized (Hinglish) code-mixed sentiment** task (Satyam's sanitized splits: 10,068 train / 1,260 validation; 3 classes: negative / neutral / positive). The primary metric is **macro-F1**; predictions rank the three label verbalizers by mean teacher-forced log-probability.
 
-| Metric | Base Qwen2.5-1.5B | + Uniform LoRA | Δ |
+| Metric (validation, n=1260) | Base Qwen2.5-1.5B | + Uniform LoRA | Δ |
 |---|---|---|---|
 | Accuracy | 0.358 | **0.630** | +0.272 |
 | Macro-F1 | 0.319 | **0.607** | +0.288 |
 
-The base model sits at chance (0.319 macro-F1 ≈ the balanced 3-class floor), while a tiny uniform LoRA nearly doubles it. This establishes the **matched-budget baseline** against which the interpretability-guided routing masks (soft `f(s_i)` scaling and hard top-k over the Stage-1 head scores, implemented in `jawed/circuit_routing/masked_lora.py`) will be compared. Training run: [W&B `mn88apmt`](https://wandb.ai/phdiiitmohammed-iiit-hyderabad/babyshark-cra/runs/mn88apmt).
+All numbers are on the **validation** split (n=1260), ADA `fp16`, single GPU (name logged per run). The base model sits at chance (0.319 macro-F1 ≈ the balanced 3-class floor), while a tiny uniform LoRA nearly doubles it. This establishes the **matched-budget baseline** against which the interpretability-guided routing masks are compared. The adapter (`jawed/circuit_routing/masked_lora.py`) gates the LoRA update per head; the **primary** scope is **global** — soft `M = clip(s,0)/global_max` and hard top-k over all 336 heads, so a noisy layer's best head is not forced to a full gate (per-layer normalisation is kept as an ablation). Head scores are Daniel's **v2** trace (`interp/runs/full_trace_v2.json` → `summary.en_hi-latn.heatmap_mean`). The four-arm comparison (uniform / soft / top-k / matched-budget random) is **pending** — ADA was unavailable at submission; it will populate once the cluster is restored, all arms on the same GPU. Baseline run: [W&B `mn88apmt`](https://wandb.ai/phdiiitmohammed-iiit-hyderabad/babyshark-cra/runs/mn88apmt).
 
 ---
 

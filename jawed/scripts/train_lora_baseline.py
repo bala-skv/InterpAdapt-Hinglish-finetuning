@@ -324,7 +324,8 @@ def build_model(cfg: BaselineConfig, tokenizer, log):
     verify_base_checkpoint(cfg.model, model.config, tokenizer)
 
     major = torch.cuda.get_device_capability()[0] if torch.cuda.is_available() else None
-    log.info("base loaded: dtype=%s device_cap=%s", cfg.model.dtype, major)
+    gpu_name = torch.cuda.get_device_name(0) if torch.cuda.is_available() else "cpu"
+    log.info("base loaded: dtype=%s gpu=%s device_cap=%s", cfg.model.dtype, gpu_name, major)
 
     lora = LoraConfig(
         r=cfg.lora.rank,
