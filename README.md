@@ -74,6 +74,25 @@ Set `WANDB_API_KEY` (or `wandb login`) before submitting so runs log to the W&B
 project above. `soft`/`topk`/`random` need Daniel's Stage-1 per-head scores at
 `jawed/data/stage1_head_scores.json` (`{"scores": [[...], ...]}`, shape `[28][12]`).
 
+### Environment & version parity
+
+**Every number in this repo — Bala/Daniel's Stage-1 traces and Jawed's Stage-2
+LoRA/CRA runs — was produced on ADA in `fp16`**, so the compute-capability axis
+(RTX 2080 Ti / GTX 1080 Ti, `sm_75`/`sm_61`) is held fixed across the team and
+no `bf16`/TF32 numerics leak in. The software stack is pinned two ways:
+
+- **Floors** (`jawed/requirements.txt`): `torch>=2.1`, `transformers>=4.44,<5`
+  (5.x renamed `from_pretrained(torch_dtype=)`→`dtype=`, which `model_loading.py`
+  relies on), `peft>=0.12`, `bitsandbytes>=0.43`, `datasets>=2.14`.
+- **Exact lock** (`jawed/requirements-lock.txt`): the frozen versions of the ADA
+  `torch310` conda env the reported runs actually used (`torch 2.5.1+cu121`,
+  `transformers 4.57.x`, `peft 0.21.x`, `bitsandbytes 0.50.x`, Python 3.10).
+  Regenerate with `pip freeze > jawed/requirements-lock.txt` on the GPU node.
+
+The base checkpoint is additionally pinned by **revision**
+(`8faed761d45a263340a0528343f099c05c9a4323`), so tokenizer/weights are identical
+regardless of the transformers version in the resolved range.
+
 ## Team
 
 Bala · Daniel · Jawed · Satyam — IIIT Hyderabad.
