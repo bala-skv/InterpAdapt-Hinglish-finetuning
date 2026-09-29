@@ -1,0 +1,4 @@
+# Keep shell/SLURM scripts LF so they run on Linux (Colab/Kaggle/ADA) even when
+# cloned on Windows. A stray CR breaks the shebang ("bad interpreter: ...^M").
+*.sh   text eol=lf
+*.slurm text eol=lf
