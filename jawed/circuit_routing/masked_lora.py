@@ -167,10 +167,14 @@ class MaskedLoRALinear(nn.Module):
         self.dropout = nn.Dropout(dropout) if dropout > 0 else nn.Identity()
 
         in_f, out_f = base.in_features, base.out_features
-        dtype = base.weight.dtype
         device = base.weight.device
-        self.lora_A = nn.Parameter(torch.empty(rank, in_f, dtype=dtype, device=device))
-        self.lora_B = nn.Parameter(torch.zeros(out_f, rank, dtype=dtype, device=device))
+        # The low-rank factors train in fp32 even when the base is fp16. On an
+        # fp16 base, fp16 LoRA weights overflow within a few steps -> inf/nan
+        # grads that clip_grad_norm cannot recover -> loss=nan forever. This
+        # mirrors PEFT's autocast_adapter_dtype=True (why the uniform-LoRA
+        # baseline is stable); the forward runs the delta in fp32 and casts back.
+        self.lora_A = nn.Parameter(torch.empty(rank, in_f, dtype=torch.float32, device=device))
+        self.lora_B = nn.Parameter(torch.zeros(out_f, rank, dtype=torch.float32, device=device))
         # Standard LoRA init: A ~ Kaiming, B = 0 -> delta starts at exactly 0.
         nn.init.kaiming_uniform_(self.lora_A, a=5 ** 0.5)
 
@@ -193,22 +197,25 @@ class MaskedLoRALinear(nn.Module):
     # -- forward ------------------------------------------------------------ #
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         base_out = self.base(x)
-        mask = self.head_mask.to(x.dtype)
+        # Run the LoRA path in fp32 (factors + mask are fp32) for stability on an
+        # fp16 base, then cast the delta back to the base output dtype before add.
+        xf = x.to(self.lora_A.dtype)
+        mask = self.head_mask
 
         if self.head_axis == "in":
             # Gate each input head BEFORE the low-rank projection: a zeroed head
             # never enters A, so it contributes nothing to the delta.
             in_gate = _expand_head_mask(mask, self.num_heads, self.head_dim)
-            xd = self.dropout(x) * in_gate
+            xd = self.dropout(xf) * in_gate
             delta = torch.nn.functional.linear(xd, self.lora_A)          # [.., rank]
             delta = torch.nn.functional.linear(delta, self.lora_B)       # [.., out]
         else:  # "out": M (dot) (B A x), gate the delta per OUTPUT head.
-            delta = torch.nn.functional.linear(self.dropout(x), self.lora_A)
+            delta = torch.nn.functional.linear(self.dropout(xf), self.lora_A)
             delta = torch.nn.functional.linear(delta, self.lora_B)
             out_gate = _expand_head_mask(mask, self.num_heads, self.head_dim)
             delta = delta * out_gate
 
-        return base_out + self.scaling * delta
+        return base_out + (self.scaling * delta).to(base_out.dtype)
 
 
 # --------------------------------------------------------------------------- #

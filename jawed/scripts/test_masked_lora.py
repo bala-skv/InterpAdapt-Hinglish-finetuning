@@ -179,6 +179,43 @@ def test_delta_is_differentiable_through_mask():
     print("PASS  gradients flow for active heads, zero for masked head")
 
 
+def test_fp16_base_keeps_fp32_adapter_and_is_finite():
+    """On an fp16 base the LoRA factors must stay fp32 and produce finite grads.
+
+    Regression guard: fp16 LoRA factors overflow within a few steps on the fp16
+    base -> inf/nan grads that clip_grad_norm cannot recover -> loss=nan forever,
+    and (0 * nan = nan) then poisons even the mask-zeroed base pass. PEFT avoids
+    this via autocast_adapter_dtype=True; we mirror it by holding A/B in fp32 and
+    running the delta in fp32, casting back to the base (fp16) dtype.
+    """
+    base = nn.Linear(HIDDEN, HIDDEN, bias=False).half()
+    w = MaskedLoRALinear(
+        base, num_heads=NUM_HEADS, head_dim=HEAD_DIM, head_axis="out",
+        rank=RANK, alpha=ALPHA,
+    )
+    assert w.lora_A.dtype == torch.float32 and w.lora_B.dtype == torch.float32, \
+        "LoRA factors must be fp32 for stable training on an fp16 base"
+
+    with torch.no_grad():  # give B a non-zero, largeish value to stress the path
+        w.lora_B.copy_(torch.randn_like(w.lora_B))
+    x = torch.randn(2, 3, HIDDEN, dtype=torch.float16)
+
+    out = w(x)
+    assert out.dtype == torch.float16, "output dtype must match the fp16 base"
+    assert torch.isfinite(out).all(), "fp16-base forward produced non-finite values"
+
+    out.float().pow(2).sum().backward()
+    assert torch.isfinite(w.lora_A.grad).all() and torch.isfinite(w.lora_B.grad).all(), \
+        "fp16-base backward produced non-finite gradients"
+
+    # The mask-zeroed base pass must recover the EXACT frozen base output (the
+    # eval's base score). 0 * finite = 0, never nan.
+    w.set_head_mask(torch.zeros(NUM_HEADS))
+    base_pass = w(x)
+    assert torch.equal(base_pass, base(x)), "zeroed-mask base pass != frozen base output"
+    print("PASS  fp16 base -> fp32 adapter, finite forward/backward, clean base pass")
+
+
 def test_inject_freezes_entire_base_model():
     """inject_masked_lora must freeze ALL base params -- only LoRA factors train.
 
@@ -230,6 +267,7 @@ def main() -> None:
     test_soft_mask_scales_delta()
     test_topk_and_random_matched_budget()
     test_delta_is_differentiable_through_mask()
+    test_fp16_base_keeps_fp32_adapter_and_is_finite()
     test_inject_freezes_entire_base_model()
     print("\nAll masked-LoRA tests passed.")
 
