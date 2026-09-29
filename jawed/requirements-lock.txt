@@ -1,0 +1,45 @@
+# Exact versions behind the reported Stage-2 LoRA baseline + CRA runs.
+# Captured from the ADA "torch310" conda env (Python 3.10, CUDA 12.1) with
+# `pip freeze` on a GPU node (gnode012, RTX 2080 Ti / sm_75), 2026-09-29.
+#
+# This is a CURATED snapshot: the source env is a large shared research env
+# (~300 packages incl. unrelated CV/LLM tooling), so only the runtime-relevant
+# stack for train_lora_baseline.py / train_cra_compare.py is pinned here. Every
+# pin satisfies the floors in requirements.txt (torch>=2.1, transformers>=4.44,<5,
+# peft>=0.12, bitsandbytes>=0.43, datasets>=2.14, accelerate>=0.33, wandb>=0.16).
+#
+# CUDA build: the +cu121 wheels are index-specific. To reproduce, install torch
+# from the cu121 index first, then the rest:
+#   pip install torch==2.5.1+cu121 --index-url https://download.pytorch.org/whl/cu121
+#   pip install -r requirements-lock.txt
+
+# --- direct runtime dependencies -------------------------------------------
+torch==2.5.1+cu121
+transformers==4.57.6
+accelerate==1.13.0
+peft==0.21.0
+bitsandbytes==0.50.2
+datasets==4.8.5
+PyYAML==6.0.3
+wandb==0.25.0
+
+# --- core transitive pins (frozen for exact numeric reproducibility) -------
+numpy==1.26.4
+tokenizers==0.22.2
+safetensors==0.8.0
+huggingface_hub==0.36.2
+hf-xet==1.6.0
+regex==2026.1.15
+sentencepiece==0.2.1
+protobuf==6.33.5
+triton==3.1.0
+sympy==1.13.1
+pandas==2.3.3
+pyarrow==24.0.0
+dill==0.4.1
+multiprocess==0.70.19
+xxhash==3.7.0
+requests==2.32.5
+packaging==23.2
+# tqdm: conda-provided in the source env (shown as a local file:// build in the
+# freeze, no PyPI version string); any recent tqdm works.
