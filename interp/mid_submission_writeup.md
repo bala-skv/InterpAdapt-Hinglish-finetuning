@@ -2,14 +2,14 @@
 
 **Group Members:** Bala, Daniel (Ashish), Jawed, Satyam
 **Model:** Qwen2.5-1.5B (fp16)
-**Metric:** Teacher-Forced Target Probability Recovery
+**Metric:** Teacher-Forced Target Probability Recovery (Stage 1) · Macro-F1 (Stage 2 sentiment)
 
 ---
 
 ## Hardware Used
 - **Bala:** ADA (gnode074: RTX 2080 Ti, sm_75)
 - **Daniel:** ADA (gnode090, gnode071: RTX 2080 Ti, sm_75)
-- **Jawed:** ADA (Upcoming LoRA stages)
+- **Jawed:** ADA (RTX 2080 Ti, sm_75 — Phase-0 gates + Stage-2 LoRA baseline)
 - **Satyam:** Colab Pro only (Data acquisition and viz)
 
 *Note: All results presented below are strictly sourced from ADA (`fp16`) to eliminate compute capability hardware variation between nodes.*
@@ -62,7 +62,20 @@ Instead of a heavily overlapping, monolithic circuit, a more accurate descriptio
 
 ---
 
-## 3. Concrete Timeline
+## 3. Stage 2 — Uniform-LoRA Baseline (Jawed)
+
+As the reference point the Circuit-Routing Adapter must beat, we fine-tuned a **uniform LoRA** (rank 8 on `q_proj` + `o_proj`, 0.089% of parameters, `fp16`, 600 steps) on the frozen **SAIL-2017 Romanized (Hinglish) code-mixed sentiment** task (Satyam's sanitized splits: 10,068 train / 1,260 validation; 3 classes: negative / neutral / positive). The primary metric is **macro-F1**; predictions rank the three label verbalizers by mean teacher-forced log-probability.
+
+| Metric | Base Qwen2.5-1.5B | + Uniform LoRA | Δ |
+|---|---|---|---|
+| Accuracy | 0.358 | **0.630** | +0.272 |
+| Macro-F1 | 0.319 | **0.607** | +0.288 |
+
+The base model sits at chance (0.319 macro-F1 ≈ the balanced 3-class floor), while a tiny uniform LoRA nearly doubles it. This establishes the **matched-budget baseline** against which the interpretability-guided routing masks (soft `f(s_i)` scaling and hard top-k over the Stage-1 head scores, implemented in `jawed/circuit_routing/masked_lora.py`) will be compared. Training run: [W&B `mn88apmt`](https://wandb.ai/phdiiitmohammed-iiit-hyderabad/babyshark-cra/runs/mn88apmt).
+
+---
+
+## 4. Concrete Timeline
 
 With Daniel's Stage 1 Trace complete, the project timeline follows strictly:
 
