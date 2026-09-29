@@ -242,6 +242,14 @@ def inject_masked_lora(
     mask; modules with no entry start uniform (all ones). Returns the list of
     inserted wrappers so callers can set masks or read ``active_heads`` later.
     """
+    # Freeze the ENTIRE base model first -- only the LoRA factors created below
+    # (``lora_A``/``lora_B``, requires_grad=True by default) should train. Each
+    # wrapper also freezes its own wrapped base weight, but the rest of the model
+    # (embeddings, MLP, k/v_proj, lm_head, norms) must be frozen here too, or
+    # AdamW allocates optimizer state for all ~1.5B params -> CUDA OOM.
+    for p in model.parameters():
+        p.requires_grad_(False)
+
     inserted: List[MaskedLoRALinear] = []
     replacements = list(_iter_target_linears(model, spec.target_modules))
     for name, linear in replacements:

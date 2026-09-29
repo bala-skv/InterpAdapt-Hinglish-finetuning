@@ -179,6 +179,50 @@ def test_delta_is_differentiable_through_mask():
     print("PASS  gradients flow for active heads, zero for masked head")
 
 
+def test_inject_freezes_entire_base_model():
+    """inject_masked_lora must freeze ALL base params -- only LoRA factors train.
+
+    Regression guard: a version that froze only the wrapped q/o_proj (but not the
+    embeddings/MLP/etc.) left ~91% of the model trainable, so AdamW allocated
+    optimizer state for the whole model and OOM'd on an 11 GiB GPU.
+    """
+    from circuit_routing.masked_lora import MaskedLoraSpec, inject_masked_lora
+    from circuit_routing.model_loading import HeadLayout
+
+    class TinyAttn(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.q_proj = nn.Linear(HIDDEN, HIDDEN, bias=False)  # target
+            self.o_proj = nn.Linear(HIDDEN, HIDDEN, bias=False)  # target
+            self.k_proj = nn.Linear(HIDDEN, HIDDEN, bias=False)  # NON-target
+
+    class TinyModel(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.embed = nn.Embedding(16, HIDDEN)                # NON-target
+            self.self_attn = TinyAttn()
+            self.mlp = nn.Linear(HIDDEN, HIDDEN)                 # NON-target
+
+    model = TinyModel()
+    layout = HeadLayout(
+        num_layers=1, num_attention_heads=NUM_HEADS,
+        num_key_value_heads=NUM_HEADS, head_dim=HEAD_DIM, hidden_size=HIDDEN,
+    )
+    wrappers = inject_masked_lora(model, layout, MaskedLoraSpec(rank=RANK, alpha=ALPHA))
+    assert len(wrappers) == 2, "expected q_proj + o_proj to be wrapped"
+
+    trainable = {n for n, p in model.named_parameters() if p.requires_grad}
+    # Only the injected LoRA factors may train; every base weight is frozen.
+    assert trainable == {
+        "self_attn.q_proj.lora_A", "self_attn.q_proj.lora_B",
+        "self_attn.o_proj.lora_A", "self_attn.o_proj.lora_B",
+    }, f"unexpected trainable params (base not frozen): {sorted(trainable)}"
+    n_train = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    n_total = sum(p.numel() for p in model.parameters())
+    assert n_train < 0.01 * n_total, f"{100*n_train/n_total:.1f}% trainable -- base not frozen"
+    print("PASS  inject_masked_lora freezes the whole base (only LoRA factors train)")
+
+
 def main() -> None:
     test_zero_mask_head_contributes_zero_out_axis()
     test_zero_mask_head_contributes_zero_in_axis()
@@ -186,6 +230,7 @@ def main() -> None:
     test_soft_mask_scales_delta()
     test_topk_and_random_matched_budget()
     test_delta_is_differentiable_through_mask()
+    test_inject_freezes_entire_base_model()
     print("\nAll masked-LoRA tests passed.")
 
 

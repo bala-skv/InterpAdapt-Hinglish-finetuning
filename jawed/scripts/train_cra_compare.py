@@ -300,6 +300,13 @@ def build_cra_model(cfg: CraConfig, tokenizer, log):
 
     trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
     total = sum(p.numel() for p in model.parameters())
+    # Fail fast if the base was not frozen: LoRA should train <<1% of params.
+    # (A regression here silently trains all ~1.5B params -> AdamW state -> OOM.)
+    if trainable > 0.01 * total:
+        raise SystemExit(
+            f"expected LoRA-only training (<1% of params) but {100.0 * trainable / total:.2f}% "
+            f"are trainable ({trainable}/{total}) -- the base model was not frozen"
+        )
     budget = adapted_budget(wrappers)
     active = sum(w.active_heads for w in wrappers)
     major = torch.cuda.get_device_capability()[0] if torch.cuda.is_available() else None
