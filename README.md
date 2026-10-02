@@ -1,112 +1,117 @@
-# InterpAdapt: Interpretability-Guided Circuit Routing for Hindi–English LoRA Fine-Tuning
+# InterpAdapt: Interpretability-Guided Circuit Routing for Hindi-English LoRA Fine-Tuning
 
-Course project (BabyShark team). We localize the attention heads that causally
-carry Hindi ↔ English behaviour in **Qwen2.5-1.5B (base)**, then route a LoRA
-update through those heads — a **Circuit-Routing Adapter (CRA)** whose per-head
-mask acts *inside* the LoRA update — and test it against matched-budget controls
-on a code-mixed (Hinglish) task.
+InterpAdapt studies whether causal activation-patching signals can identify
+language-specific computation in Qwen2.5-1.5B and use those signals to route
+parameter-efficient adaptation for Hindi-English code-mixed NLP.
 
-- **Stage 1 — Causal localization:** activation patching across all 336 query
-  heads over three language/script conditions (English, Romanized Hindi,
-  Devanagari) to separate *language* from *script*.
-- **Stage 2 — Circuit-Routing Adapter:** soft-scaling / hard-top-k LoRA gated by
-  the Stage-1 per-head scores, compared at matched budget against uniform LoRA,
-  a random-head mask, and an inverse-causal mask.
+## Research pipeline
 
-## Stage-2 baseline (the "one real number")
+### Stage 1 — Causal localization
 
-Uniform LoRA (rank 8 on `q_proj`+`o_proj`, 0.089% of params, fp16, 600 steps) on
-the frozen SAIL-2017 Romanized sentiment **validation** split (n=1260). Primary
-metric is **macro-F1**. The base model is at chance; a tiny LoRA nearly doubles it —
-this is the bar the Circuit-Routing Adapter must beat at matched budget.
+Activation patching is evaluated across three matched conditions:
 
-| Metric (validation, n=1260) | Base Qwen2.5-1.5B | + Uniform LoRA | Δ |
-|---|---|---|---|
-| Accuracy | 0.358 | **0.630** | +0.272 |
-| Macro-F1 | 0.319 | **0.607** | +0.288 |
+- English (`en`)
+- Romanized Hindi (`hi_latn`)
+- Devanagari Hindi (`hi_deva`)
 
-All numbers are **validation** macro-F1 / accuracy on ADA (fp16, single GPU; the
-GPU name is logged per run). ([W&B run `mn88apmt`](https://wandb.ai/phdiiitmohammed-iiit-hyderabad/babyshark-cra/runs/mn88apmt))
+The primary language contrast is `en <-> hi_latn`, where script is held
+constant. The `hi_deva <-> hi_latn` contrast isolates script while language is
+held constant. The `en <-> hi_deva` contrast contains both effects.
 
-### Stage-2 CRA comparison (harness ready; runs pending)
+The current tracing set contains 38 validated concepts. The Stage 1 scoring
+interface uses mean teacher-forced full-sequence target log-probability, and the
+patch position is derived from the scoring interface.
 
-The matched-budget comparison — **global** soft `clip(s,0)/global_max`, **global**
-top-k over all 336 heads, and a budget-matched **random** control, vs. the uniform
-LoRA above — is implemented in `jawed/circuit_routing/masked_lora.py` +
-`jawed/scripts/train_cra_compare.py` and driven by `jawed/configs/cra_compare.yaml`
-(primary scope `global`). Head scores are Daniel's **v2** trace
-(`interp/runs/full_trace_v2.json` → `summary.en_hi-latn.heatmap_mean`, regenerated
-by `jawed/scripts/build_stage1_scores.py`). Numbers are **pending** — ADA was
-unavailable at submission; the four arms populate this table once the cluster is
-restored (all four on the same GPU for a fair comparison).
+### Stage 2 — Circuit-Routing Adapter
 
+Stage 2 contains the LoRA baseline and matched-budget routing controls. The
+Stage 1 per-head scores provide the causal signal used by the routing masks.
 
-## Links (submission guidelines §3)
+## Repository structure
 
-| Resource | Link |
-|---|---|
-| **Code (this repo)** | https://github.com/bala-skv/InterpAdapt-Hinglish-finetuning |
-| **W&B — training runs** | https://wandb.ai/phdiiitmohammed-iiit-hyderabad/babyshark-cra |
-| **W&B — LoRA baseline run** | https://wandb.ai/phdiiitmohammed-iiit-hyderabad/babyshark-cra/runs/mn88apmt |
-| **HF dataset — SAIL-2017 Hinglish (Stage 2 task)** | https://huggingface.co/datasets/satyam-arora-iiit-hyderabad/babyshark-sail2017-stage2 |
-| **HF model — base checkpoint (pinned)** | https://huggingface.co/Qwen/Qwen2.5-1.5B (revision `8faed761d45a263340a0528343f099c05c9a4323`) |
-| **HF adapters — trained LoRA / CRA** | _added after the runs finish (`model.save_pretrained` output pushed per arm)_ |
-
-## Repository layout
-
-| Path | Owner | Contents |
-|---|---|---|
-| [`phase0/`](phase0/) | Jawed | Phase-0 setup & de-risking: verify base checkpoint, memory pilot, hook smoke test. |
-| [`bala/`](bala/) | Bala | Tracing-set construction + sequence scoring for Stage 1. |
-| [`interp/`](interp/), [`stage1/`](stage1/) | Daniel | Activation-patching harness, sanity gate, heatmaps, score correlations. |
-| [`jawed/`](jawed/) | Jawed | Stage-2 adapter surface (`MaskedLoRALinear`), LoRA baseline, CRA-vs-controls runner, SLURM. |
-
-## Reproduce
-
-Everything runs on a single small GPU on the cluster (ADA). It is not expected to
-run on a locked-down workstation (no local `torch`).
-
-```bash
-# 1. Environment (from the jawed/ sub-project)
-cd jawed
-pip install -e .            # or: pip install -r requirements.txt
-
-# 2. Phase-0 gates (verify base + memory pilot + hooks) -> GO/NO-GO
-python scripts/run_phase0.py --config configs/phase0.yaml
-
-# 3. Stage-2 uniform-LoRA baseline (the "one real number")
-sbatch cluster/train_lora_baseline.slurm
-
-# 4. Stage-2 CRA vs. matched-budget controls (one job per arm)
-MASK_MODE=soft    sbatch cluster/train_cra_compare.slurm
-MASK_MODE=uniform sbatch cluster/train_cra_compare.slurm
-MASK_MODE=topk    sbatch cluster/train_cra_compare.slurm
-MASK_MODE=random  sbatch cluster/train_cra_compare.slurm
+```text
+src/
+  circuit_routing/           Core model, data, adapter and experiment utilities
+  interp_adapt/tracing/      Stage 1 scoring and patching primitives
+scripts/
+  phase0/                    Phase 0 verification and memory gates
+  stage1/                    Tracing, validation and analysis entry points
+  stage2/                    LoRA/CRA training and score export
+configs/                     Experiment configurations
+cluster/                     SLURM and cluster environment helpers
+data/                        Frozen small data artifacts and dataset references
+results/                     Retained machine-generated results
+figures/                     Presentation-ready figures
+docs/                        Architecture, data and reproducibility documentation
+legacy/                      Superseded implementations retained for provenance
 ```
 
-Set `WANDB_API_KEY` (or `wandb login`) before submitting so runs log to the W&B
-project above. `soft`/`topk`/`random` need Daniel's Stage-1 per-head scores at
-`jawed/data/stage1_head_scores.json` (`{"scores": [[...], ...]}`, shape `[28][12]`).
+## Reproducibility
 
-### Environment & version parity
+The base model is pinned to:
 
-**Every number in this repo — Bala/Daniel's Stage-1 traces and Jawed's Stage-2
-LoRA/CRA runs — was produced on ADA in `fp16`**, so the compute-capability axis
-(RTX 2080 Ti / GTX 1080 Ti, `sm_75`/`sm_61`) is held fixed across the team and
-no `bf16`/TF32 numerics leak in. The software stack is pinned two ways:
+`Qwen/Qwen2.5-1.5B @ 8faed761d45a263340a0528343f099c05c9a4323`
 
-- **Floors** (`jawed/requirements.txt`): `torch>=2.1`, `transformers>=4.44,<5`
-  (5.x renamed `from_pretrained(torch_dtype=)`→`dtype=`, which `model_loading.py`
-  relies on), `peft>=0.12`, `bitsandbytes>=0.43`, `datasets>=2.14`.
-- **Exact lock** (`jawed/requirements-lock.txt`): the frozen versions of the ADA
-  `torch310` conda env the reported runs actually used (`torch 2.5.1+cu121`,
-  `transformers 4.57.x`, `peft 0.21.x`, `bitsandbytes 0.50.x`, Python 3.10).
-  Regenerate with `pip freeze > jawed/requirements-lock.txt` on the GPU node.
+Stage 1 tracing uses fp16 and the verified 28-layer / 12-query-head / 2-KV-group
+Qwen layout. See `docs/reproducibility.md` for the locked experiment contract.
 
-The base checkpoint is additionally pinned by **revision**
-(`8faed761d45a263340a0528343f099c05c9a4323`), so tokenizer/weights are identical
-regardless of the transformers version in the resolved range.
+## Data
 
-## Team
+Stage 1 tracing data is checked into `data/tracing/`.
 
-Bala · Daniel · Jawed · Satyam — IIIT Hyderabad.
+The Stage 2 SAIL-2017 Romanized sentiment artifact is hosted on Hugging Face:
+
+https://huggingface.co/datasets/satyam-arora-iiit-hyderabad/babyshark-sail2017-stage2
+
+The downstream-data provenance and cleaning policy are documented in
+`data/downstream/README.md` and the linked dataset artifact.
+
+## Running
+
+Install the repository in editable mode:
+
+```bash
+pip install -e .
+```
+
+### Phase 0
+
+```bash
+python scripts/phase0/run_phase0.py --config configs/phase0.yaml
+```
+
+### Stage 1 tracing validation
+
+```bash
+python scripts/stage1/validate_tracing_set_v1.py
+```
+
+### Stage 1 full trace
+
+```bash
+python scripts/stage1/full_trace.py --data data/tracing/tracing_set_v1.json
+```
+
+### Stage 1 analysis
+
+```bash
+python scripts/stage1/analyze_trace.py \
+  --trace results/stage1/full_trace_v2.json \
+  --out results/stage1/analysis_v2
+```
+
+### Stage 2
+
+See the configuration files in `configs/` and the SLURM entry points in
+`cluster/`.
+
+## Experimental results
+
+Retained results and figures are stored under `results/` and `figures/`.
+Experimental numbers should always be interpreted together with their recorded
+configuration and execution environment.
+
+## Provenance and legacy code
+
+The `legacy/` directory preserves the pre-refactor working tree for provenance
+and rollback. It is not part of the canonical execution path.
