@@ -23,7 +23,7 @@ logs/
 *.log
 
 # Generated at runtime by cluster/run_cloud_gpu.sh (env-var overrides)
-jawed/configs/_cloud_active.yaml
+configs/_cloud_active.yaml
 
 # Editor / OS
 .vscode/
