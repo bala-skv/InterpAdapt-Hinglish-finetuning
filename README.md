@@ -100,6 +100,20 @@ python scripts/stage1/analyze_trace.py \
   --out results/stage1/analysis_v2
 ```
 
+### Stage 1 head interactions
+
+Tests whether heads act independently (joint patching, necessity sweep, pair
+interactions). Protocol and outputs: `docs/stage1_interactions.md`.
+
+```bash
+python scripts/stage1/entangle.py curve     # GPU
+python scripts/stage1/entangle.py noise     # GPU
+python scripts/stage1/entangle.py shortlist # CPU, fixes the candidate heads
+python scripts/stage1/entangle.py pairs     # GPU
+python scripts/stage1/entangle.py analyze   # CPU
+python scripts/stage1/plot_entangle.py      # CPU, figures/stage1/entangle/
+```
+
 ### Stage 2
 
 See the configuration files in `configs/` and the SLURM entry points in
