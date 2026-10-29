@@ -8,7 +8,7 @@ figures/stage1/entangle/:
   curve_<pair>.png      Joint patching curve: top-k joint recovery, the sum of
                         the same heads' single recoveries (additive prediction)
                         and random k heads. Bands are 95% bootstrap intervals
-                        over the 38 concepts.
+                        over the concepts.
   necessity_<pair>.png  Necessity against sufficiency for all 336 heads.
   pairs_<pair>.png      Largest pair interactions with 95% intervals, the
                         family-wise threshold, and the random-pair range.
@@ -85,7 +85,7 @@ def plot_curve(curve: dict, singles: dict, pair: str, B: int, rng) -> None:
     ax.set_xticks(ks)
     ax.set_xticklabels([str(k) for k in ks], fontsize=7)
     ax.set_xlabel("number of heads patched, $k$")
-    ax.set_ylabel("mean recovery over 38 concepts")
+    ax.set_ylabel(f"mean recovery over {len(rows)} concepts")
     ax.set_title("Joint patching vs. additive prediction")
     ax.legend(frameon=False, fontsize=7, loc="upper left", bbox_to_anchor=(0.0, 0.88))
     save(fig, f"curve_{pair}")
@@ -224,7 +224,12 @@ def main() -> int:
     ap.add_argument("--analysis", type=Path, default=None)
     ap.add_argument("--boot", type=int, default=2000)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--fig-dir", type=Path, default=None,
+                    help="output folder (default: figures/stage1/entangle)")
     a = ap.parse_args()
+    if a.fig_dir is not None:
+        global FIG_DIR
+        FIG_DIR = a.fig_dir
 
     rng = np.random.default_rng(a.seed)
     v2 = E.load(a.scores)

@@ -469,9 +469,10 @@ def cmd_shortlist(a):
     path = a.out or default_path("shortlist", a.pair)
     save(path, out)
     print(f"{len(heads)} heads -> {out['n_pairs']} pairs")
-    passes = 38 * (2 * len(heads) + 2 * out["n_pairs"] + 2 * 190 + 4)
-    print(f"estimated pairs run: about {passes / 21.5 / 3600:.1f} h "
-          "(21.5 forward passes/s measured on an RTX 2080 Ti, 38 concepts, 190 random pairs)")
+    n_concepts = sum(1 for r in noise["per_concept"] if not r.get("skipped"))
+    passes = n_concepts * (2 * len(heads) + 2 * out["n_pairs"] + 2 * 190 + 4)
+    print(f"estimated pairs run: about {passes / 23.0 / 3600:.1f} h "
+          f"(23 forward passes/s measured on an RTX 2080 Ti, {n_concepts} concepts, 190 random pairs)")
     print("necessary but not sufficient:",
           ", ".join(out["necessary_not_sufficient"]) or "none")
     print(f"Commit {path.relative_to(REPO_ROOT) if path.is_relative_to(REPO_ROOT) else path} "

@@ -1,0 +1,22 @@
+[
+ {
+  "concept_id": "sky_colour",
+  "category": "colour",
+  "en_prompt": "A clear sky is coloured ",
+  "en_target": "blue",
+  "hi_deva_prompt": "साफ़ आसमान का रंग होता है ",
+  "hi_deva_target": "नीला",
+  "hi_latn_prompt": "saaf aasmaan ka rang hota hai ",
+  "hi_latn_target": "neela"
+ },
+ {
+  "concept_id": "dog_sound",
+  "category": "animal",
+  "en_prompt": "The animal that barks loudly is a ",
+  "en_target": "dog",
+  "hi_deva_prompt": "ज़ोर से भौंकने वाला जानवर है ",
+  "hi_deva_target": "कुत्ता",
+  "hi_latn_prompt": "zor se bhaunkne wala jaanwar hai ",
+  "hi_latn_target": "kutta"
+ }
+]

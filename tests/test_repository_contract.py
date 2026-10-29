@@ -57,6 +57,8 @@ class RepositoryContractTests(unittest.TestCase):
             "scripts/stage1/entangle.py",
             "scripts/stage1/plot_entangle.py",
             "cluster/entangle.slurm",
+            "scripts/pipeline/run_concepts.py",
+            "cluster/run_concepts.slurm",
             "scripts/stage2/train_lora_baseline.py",
             "scripts/stage2/train_cra_compare.py",
             "scripts/stage2/build_stage1_scores.py",

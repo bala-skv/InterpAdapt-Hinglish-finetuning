@@ -114,6 +114,16 @@ python scripts/stage1/entangle.py analyze   # CPU
 python scripts/stage1/plot_entangle.py      # CPU, figures/stage1/entangle/
 ```
 
+### Stage 1 on a new concept set
+
+One command runs single-head patching, MLP-layer patching and the head-interaction
+tests on any concept set in the tracing-set format, and writes
+`results/concepts/<name>/REPORT.md`. Guide: `docs/concept_pipeline.md`.
+
+    python scripts/pipeline/run_concepts.py --concepts data/tracing/my_set.json --name my_set --dry-run
+    python scripts/pipeline/run_concepts.py --concepts data/tracing/my_set.json --name my_set --limit 3
+    python scripts/pipeline/run_concepts.py --concepts data/tracing/my_set.json --name my_set
+
 ### Stage 2
 
 See the configuration files in `configs/` and the SLURM entry points in

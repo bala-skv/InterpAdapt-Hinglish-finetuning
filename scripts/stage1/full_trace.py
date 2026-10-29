@@ -56,6 +56,7 @@ if str(_SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(_SRC_ROOT))
 
 from interp_adapt.tracing.patching import NUM_HEADS, NUM_LAYERS, capture_activations, patched_logits  # noqa: E402
+from interp_adapt.tracing.mlp_patching import capture_mlp_activations, mlp_patched_logits  # noqa: E402
 from interp_adapt.tracing.model_loading import LoadConfig, load_base_model  # noqa: E402
 
 # (source condition, target condition). Source = the side patched FROM.
@@ -109,7 +110,7 @@ def _run(model, full_ids, patch_pos=None, layer=None, head=None, stored=None):
 # One concept, one pair
 # ---------------------------------------------------------------------------
 
-def trace_pair(model, tok, item: dict, src: str, tgt: str) -> dict:
+def trace_pair(model, tok, item: dict, src: str, tgt: str, component: str = "heads") -> dict:
     hi_p, hi_t = item[f"{src}_prompt"], item[f"{src}_target"]
     en_p, en_t = item[f"{tgt}_prompt"], item[f"{tgt}_target"]
 
@@ -140,13 +141,9 @@ def trace_pair(model, tok, item: dict, src: str, tgt: str) -> dict:
         out["skipped"] = True
         return out
 
-    # Capture from the source run at the source's last prompt token.
-    stored = capture_activations(
-        model, torch.tensor([s_hi_ids], device=model.device), s_patch
-    )
-
-    # In-path zero-heads check: an unpatched target run must reproduce
+    # In-path zero-patch check: an unpatched target run must reproduce
     # m_corrupted exactly, through the same code, or recovery is meaningless.
+    # This is component-agnostic (it patches nothing), so it guards both paths.
     m_unpatched = (
         _logp_from_logits(_run(model, t_hi_ids, t_hi_patch, None, None, None), t_hi_ids, t_hi_n)
         - _logp_from_logits(_run(model, t_en_ids, t_en_patch, None, None, None), t_en_ids, t_en_n)
@@ -156,6 +153,29 @@ def trace_pair(model, tok, item: dict, src: str, tgt: str) -> dict:
             f"{item['concept_id']} {src}->{tgt}: unpatched run gives "
             f"{m_unpatched} but m_corrupted is {m_corrupted}; scoring paths diverge"
         )
+
+    if component == "mlp":
+        # Per-LAYER MLP-output patching (no head axis): length-28 recovery.
+        stored = capture_mlp_activations(
+            model, torch.tensor([s_hi_ids], device=model.device), s_patch
+        )
+        m_patched = np.zeros((NUM_LAYERS,))
+        for L in range(NUM_LAYERS):
+            ids_hi = torch.tensor([t_hi_ids], device=model.device)
+            ids_en = torch.tensor([t_en_ids], device=model.device)
+            lp_hi = _logp_from_logits(
+                mlp_patched_logits(model, ids_hi, t_hi_patch, L, stored), t_hi_ids, t_hi_n)
+            lp_en = _logp_from_logits(
+                mlp_patched_logits(model, ids_en, t_en_patch, L, stored), t_en_ids, t_en_n)
+            m_patched[L] = lp_hi - lp_en
+        out["m_patched"] = m_patched.tolist()
+        out["recovery"] = ((m_patched - m_corrupted) / contrast).tolist()
+        return out
+
+    # Capture from the source run at the source's last prompt token.
+    stored = capture_activations(
+        model, torch.tensor([s_hi_ids], device=model.device), s_patch
+    )
 
     m_patched = np.zeros((NUM_LAYERS, NUM_HEADS))
     for L in range(NUM_LAYERS):
@@ -181,10 +201,17 @@ def _trimmed_mean(stack: np.ndarray, frac: float = 0.1) -> np.ndarray:
 def main() -> int:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--data", type=Path, default=_REPO_ROOT / "data" / "tracing" / "tracing_set_v1.json")
-    p.add_argument("--out", type=Path, default=_REPO_ROOT / "results" / "stage1" / "full_trace_v2.json")
+    p.add_argument("--out", type=Path, default=None,
+                   help="output JSON; defaults to results/stage1/full_trace[_mlp]_v2.json")
+    p.add_argument("--component", choices=["heads", "mlp"], default="heads",
+                   help="'heads' = per-head o_proj sweep (28x12); 'mlp' = per-layer MLP-output sweep (28)")
     p.add_argument("--pairs", nargs="*", default=list(PAIRS))
     p.add_argument("--limit", type=int, default=None, help="first N concepts (smoke test)")
     args = p.parse_args()
+
+    if args.out is None:
+        fname = "full_trace_v2.json" if args.component == "heads" else "full_trace_mlp_v2.json"
+        args.out = _REPO_ROOT / "results" / "stage1" / fname
 
     model, tok = load_base_model(LoadConfig(precision="fp16"))
     model.eval()
@@ -193,13 +220,13 @@ def main() -> int:
     concepts = json.loads(args.data.read_text(encoding="utf-8"))
     if args.limit:
         concepts = concepts[: args.limit]
-    print(f"{len(concepts)} concepts, pairs: {args.pairs}")
+    print(f"{len(concepts)} concepts, pairs: {args.pairs}, component: {args.component}")
 
     per_concept: dict[str, list[dict]] = {k: [] for k in args.pairs}
     for item in tqdm(concepts, desc="concepts"):
         for name in args.pairs:
             src, tgt = PAIRS[name]
-            per_concept[name].append(trace_pair(model, tok, item, src, tgt))
+            per_concept[name].append(trace_pair(model, tok, item, src, tgt, args.component))
 
     summary = {}
     for name, rows in per_concept.items():
@@ -207,7 +234,7 @@ def main() -> int:
         if not used:
             summary[name] = {"n_used": 0}
             continue
-        stack = np.array([r["recovery"] for r in used])  # [N, 28, 12]
+        stack = np.array([r["recovery"] for r in used])  # heads: [N,28,12]; mlp: [N,28]
         summary[name] = {
             "n_used": len(used),
             "n_skipped": len(rows) - len(used),
@@ -218,16 +245,23 @@ def main() -> int:
             "heatmap_trimmed": _trimmed_mean(stack).tolist(),
             "heatmap_std": stack.std(0).tolist(),
         }
-        top = np.argsort(-stack.mean(0).flatten())[:5]
+        flat = stack.mean(0).flatten()
+        top = np.argsort(-flat)[:5]
         print(f"\n{name}: n={len(used)}  contrast mean {summary[name]['contrast_mean']:.2f}")
-        print("  top5 (L,H,mean,median):",
-              [(int(i // NUM_HEADS), int(i % NUM_HEADS),
-                round(float(stack.mean(0).flatten()[i]), 4),
-                round(float(np.median(stack, 0).flatten()[i]), 4)) for i in top])
+        if args.component == "mlp":
+            med = np.median(stack, 0).flatten()
+            print("  top5 (L,mean,median):",
+                  [(int(i), round(float(flat[i]), 4), round(float(med[i]), 4)) for i in top])
+        else:
+            med = np.median(stack, 0).flatten()
+            print("  top5 (L,H,mean,median):",
+                  [(int(i // NUM_HEADS), int(i % NUM_HEADS),
+                    round(float(flat[i]), 4), round(float(med[i]), 4)) for i in top])
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps({
         "version": 2,
+        "component": args.component,
         "protocol": "m_clean on source run; one fp32 scoring path; mean reduction",
         "summary": summary,
         "per_concept": per_concept,
