@@ -56,8 +56,8 @@ DEFAULT_PAIRS = [("en", "hi_deva"), ("en", "hi_latn"), ("hi_deva", "hi_latn")]
 
 # Per-token floor. Scaled by target length when reduction="sum" so the same
 # threshold means the same thing under both reductions.
-MIN_LOGP_PER_TOKEN = -8.0
-MIN_CONTRAST = 0.5
+MIN_LOGP_PER_TOKEN = -10.0
+MIN_CONTRAST = 0.3
 
 
 def _floor(reduction: str, n_tokens: int) -> float:

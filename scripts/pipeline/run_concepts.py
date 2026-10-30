@@ -352,8 +352,8 @@ class Run:
         data = load_json(self.frozen)
         if bad and not self.a.drop_unusable:
             raise SystemExit(
-                f"{len(bad)} concept(s) fail the validation criteria (log-prob floor -8 per "
-                f"token, contrast >= 0.5 on every contrast): {', '.join(bad)}.\n"
+                f"{len(bad)} concept(s) fail the validation criteria (log-prob floor -10 per "
+                f"token, contrast >= 0.3 on every contrast): {', '.join(bad)}.\n"
                 "Rewrite them, or re-run with --drop-unusable to continue without them "
                 "(see validation.json for the numbers).")
         keep = [c for c in data if c["concept_id"] not in set(bad)]
