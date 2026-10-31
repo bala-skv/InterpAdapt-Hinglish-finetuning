@@ -23,6 +23,8 @@ from circuit_routing.masked_lora import (
     soft_mask_from_scores,
     soft_mask_from_scores_global,
     topk_mask_from_scores,
+    topk_mask_from_scores_abs,
+    topk_mask_from_scores_abs_global,
     topk_mask_from_scores_global,
     uniform_mask,
 )
@@ -165,6 +167,44 @@ def test_topk_and_random_matched_budget():
         "top-k and random mask are NOT budget-matched"
     assert w_top.active_heads == k and w_rnd.active_heads == k
     print("PASS  top-k / random masks are budget-matched at k heads")
+
+
+def test_abs_topk_keeps_largest_magnitude_including_negatives():
+    """Magnitude top-k keeps strong NEGATIVE (suppressor) heads signed top-k drops.
+
+    Motivated by Zhang et al.'s translation head/MLP maps (large negative-effect
+    components). Must stay budget-matched to the random control at the same k.
+    """
+    # head 0 is the most-negative, head 11 the most-positive; both are extremes.
+    scores = [-9.0, -0.2, 0.1, 0.3, 0.0, 0.2, -0.1, 0.4, 0.05, -0.3, 0.6, 8.0]
+    k = 3
+
+    signed = topk_mask_from_scores(scores, k)
+    mag = topk_mask_from_scores_abs(scores, k)
+    assert int(mag.sum()) == k, "abs top-k kept the wrong count"
+
+    sel = set(torch.nonzero(mag).flatten().tolist())
+    # The three largest |score| are heads 0 (-9), 11 (8), 10 (0.6).
+    assert sel == {0, 10, 11}, f"abs top-k picked {sorted(sel)}, expected 0,10,11"
+    # The most-negative head is kept by magnitude but NOT by signed top-k.
+    assert mag[0] == 1.0 and signed[0] == 0.0, "suppressor head not recovered by abs top-k"
+
+    # Budget match vs the random control at the same k.
+    gen = torch.Generator().manual_seed(2)
+    rnd = random_mask(NUM_HEADS, k, generator=gen)
+    w_mag = _wrapper("out", mask=mag)
+    w_rnd = _wrapper("out", mask=rnd)
+    assert adapted_budget([w_mag]) == adapted_budget([w_rnd]), \
+        "abs top-k and random are NOT budget-matched"
+
+    # Global magnitude top-k over a 2-layer grid, same semantics.
+    grid = [[-9.0, 0.1] + [0.0] * (NUM_HEADS - 2),
+            [8.0, -0.3] + [0.0] * (NUM_HEADS - 2)]
+    mag_g = topk_mask_from_scores_abs_global(grid, 2)
+    assert int(mag_g.sum()) == 2
+    assert mag_g[0, 0] == 1.0 and mag_g[1, 0] == 1.0, \
+        "global abs top-k should keep the two largest-|score| heads across layers"
+    print("PASS  abs top-k keeps largest-|score| heads (incl. negatives), budget-matched")
 
 
 def test_delta_is_differentiable_through_mask():
@@ -315,6 +355,7 @@ def main() -> None:
     test_uniform_mask_equals_plain_lora()
     test_soft_mask_scales_delta()
     test_topk_and_random_matched_budget()
+    test_abs_topk_keeps_largest_magnitude_including_negatives()
     test_delta_is_differentiable_through_mask()
     test_global_masks_share_scale_across_layers()
     test_fp16_base_keeps_fp32_adapter_and_is_finite()
