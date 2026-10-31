@@ -23,7 +23,7 @@ The project evaluates two successive stages:
 
 ### Stage 1: Circuit Localization & Head Interactions (H1, H2)
 Evaluated on the primary 39-concept linguistic set under the language contrast (`en <-> hi_latn`, holding script constant):
-- **Top Causal Attention Heads:** Causal recovery is concentrated in late-layer attention heads: **L22H0** ($+0.044$), **L21H2** ($+0.043$), and **L22H6** ($+0.039$). Across all 336 heads, **14 heads** pass the family-wise error rate (FWER) permutation test, and 137 heads have a 95% bootstrap CI strictly $> 0$.
+- **Top Causal Attention Heads:** Causal recovery is concentrated in late-layer attention heads: **L22H0** ($+0.044$), **L21H2** ($+0.043$), and **L22H6** ($+0.039$). Across all 336 heads, **14 heads** pass the family-wise error rate (FWER) permutation test, and 116 heads have a 95% bootstrap CI strictly $> 0$.
 - **Top Causal MLP Layers:** Late MLP blocks exhibit high causal restoration: **L17** ($+0.131$), **L22** ($+0.117$), and **L23** ($+0.110$). Overall, **15 of 28 MLP layers** are statistically significant.
 - **Head Non-Independence:** Joint patching recovers *more* than the linear sum of single-head effects for small sets ($k=20$: joint recovery $0.587$ vs. sum of singles $0.495$), but saturates at larger subsets ($k=100$: joint recovery $0.949$ vs. sum of singles $1.053$).
 - **Pairwise Interactions:** Among 1,225 shortlisted head pairs (all combinations among the top 50 heads), **137 pairs** show statistically robust interactions; 123 lie outside the empirical range of random control pairs ($[-0.0014, +0.0012]$), and 17 pairs exhibit negative (redundant) interactions.
