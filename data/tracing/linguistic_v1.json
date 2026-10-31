@@ -1,0 +1,502 @@
+[
+  {
+    "concept_id": "e300_001_dog_bark",
+    "category": "s01_animals",
+    "en_prompt": "The animal that barks loudly is a ",
+    "en_target": "dog",
+    "hi_deva_prompt": "ज़ोर से भौंकने वाला जानवर है ",
+    "hi_deva_target": "कुत्ता",
+    "hi_latn_prompt": "zor se bhaunkne wala jaanwar hai ",
+    "hi_latn_target": "kutta"
+  },
+  {
+    "concept_id": "e300_003_cow_milk",
+    "category": "s01_animals",
+    "en_prompt": "The farm animal that gives milk is a ",
+    "en_target": "cow",
+    "hi_deva_prompt": "दूध देने वाला जानवर है ",
+    "hi_deva_target": "गाय",
+    "hi_latn_prompt": "doodh dene wala jaanwar hai ",
+    "hi_latn_target": "gaay"
+  },
+  {
+    "concept_id": "e300_005_fish_water",
+    "category": "s01_animals",
+    "en_prompt": "The animal that lives in water and swims is a ",
+    "en_target": "fish",
+    "hi_deva_prompt": "पानी में रहने और तैरने वाला जानवर है ",
+    "hi_deva_target": "मछली",
+    "hi_latn_prompt": "paani mein rehne aur tairne wala jaanwar hai ",
+    "hi_latn_target": "machhli"
+  },
+  {
+    "concept_id": "e300_016_eye_sight",
+    "category": "s02_body_sensory_organs",
+    "en_prompt": "The organ used for sight is the ",
+    "en_target": "eye",
+    "hi_deva_prompt": "देखने के लिए इस्तेमाल होने वाला अंग है ",
+    "hi_deva_target": "आँख",
+    "hi_latn_prompt": "dekhne ke liye istemaal hone wala ang hai ",
+    "hi_latn_target": "aankh"
+  },
+  {
+    "concept_id": "e300_017_ear_hearing",
+    "category": "s02_body_sensory_organs",
+    "en_prompt": "The organ used for hearing is the ",
+    "en_target": "ear",
+    "hi_deva_prompt": "सुनने के लिए इस्तेमाल होने वाला अंग है ",
+    "hi_deva_target": "कान",
+    "hi_latn_prompt": "sunne ke liye istemaal hone wala ang hai ",
+    "hi_latn_target": "kaan"
+  },
+  {
+    "concept_id": "e300_019_nose_smell",
+    "category": "s02_body_sensory_organs",
+    "en_prompt": "People smell things with their ",
+    "en_target": "nose",
+    "hi_deva_prompt": "हम सूँघते हैं अपनी ",
+    "hi_deva_target": "नाक",
+    "hi_latn_prompt": "hum soonghte hain apni ",
+    "hi_latn_target": "naak"
+  },
+  {
+    "concept_id": "e300_031_book_pages",
+    "category": "s03_artifacts_tools",
+    "en_prompt": "People sit quietly and read a ",
+    "en_target": "book",
+    "hi_deva_prompt": "लोग चुपचाप बैठकर पढ़ते हैं ",
+    "hi_deva_target": "किताब",
+    "hi_latn_prompt": "log chupchaap baithkar padhte hain ",
+    "hi_latn_target": "kitaab"
+  },
+  {
+    "concept_id": "e300_032_key_lock",
+    "category": "s03_artifacts_tools",
+    "en_prompt": "People open a lock using a ",
+    "en_target": "key",
+    "hi_deva_prompt": "ताला खोलने के लिए चाहिए ",
+    "hi_deva_target": "चाबी",
+    "hi_latn_prompt": "taala kholne ke liye chahiye ",
+    "hi_latn_target": "chaabi"
+  },
+  {
+    "concept_id": "e300_033_door_entry",
+    "category": "s03_artifacts_tools",
+    "en_prompt": "People walk into a room through the ",
+    "en_target": "door",
+    "hi_deva_prompt": "कमरे में लोग अंदर आते हैं ",
+    "hi_deva_target": "दरवाज़ा",
+    "hi_latn_prompt": "kamre mein log andar aate hain ",
+    "hi_latn_target": "darwaaza"
+  },
+  {
+    "concept_id": "e300_046_bread_flatbread",
+    "category": "s04_food_substances",
+    "en_prompt": "Flour baked in an oven becomes ",
+    "en_target": "bread",
+    "hi_deva_prompt": "आटे से बनने वाली रोज़ की चीज़ है ",
+    "hi_deva_target": "रोटी",
+    "hi_latn_prompt": "aate se banne wali roz ki cheez hai ",
+    "hi_latn_target": "roti"
+  },
+  {
+    "concept_id": "e300_048_water_drink",
+    "category": "s04_food_substances",
+    "en_prompt": "The liquid people drink every day is ",
+    "en_target": "water",
+    "hi_deva_prompt": "जो चीज़ हम रोज़ पीते हैं वह है ",
+    "hi_deva_target": "पानी",
+    "hi_latn_prompt": "jo cheez hum roz peete hain wo hai ",
+    "hi_latn_target": "paani"
+  },
+  {
+    "concept_id": "e300_047_milk_white_liquid",
+    "category": "s04_food_substances",
+    "en_prompt": "The white nutritious liquid produced by mammals is ",
+    "en_target": "milk",
+    "hi_deva_prompt": "स्तनधारियों से मिलने वाला सफ़ेद पौष्टिक द्रव है ",
+    "hi_deva_target": "दूध",
+    "hi_latn_prompt": "stanadhaariyon se milne wala safed paushtik drav hai ",
+    "hi_latn_target": "doodh"
+  },
+  {
+    "concept_id": "e300_061_house_family",
+    "category": "s05_places_locations",
+    "en_prompt": "The building a family lives in is a ",
+    "en_target": "house",
+    "hi_deva_prompt": "जिस जगह परिवार रहता है वह है ",
+    "hi_deva_target": "घर",
+    "hi_latn_prompt": "jis jagah parivaar rehta hai wo hai ",
+    "hi_latn_target": "ghar"
+  },
+  {
+    "concept_id": "e300_062_hospital_treatment",
+    "category": "s05_places_locations",
+    "en_prompt": "The health facility where patients receive treatment is a ",
+    "en_target": "hospital",
+    "hi_deva_prompt": "जहाँ रोगियों का इलाज किया जाता है वह जगह है ",
+    "hi_deva_target": "अस्पताल",
+    "hi_latn_prompt": "jahaan rogiyon ka ilaaj kiya jaata hai vah jagah hai ",
+    "hi_latn_target": "aspataal"
+  },
+  {
+    "concept_id": "e300_076_mother_parent",
+    "category": "s06_people_kinship_roles",
+    "en_prompt": "The woman who gave birth to you is your ",
+    "en_target": "mother",
+    "hi_deva_prompt": "जिसने आपको जन्म दिया वह है आपकी ",
+    "hi_deva_target": "माँ",
+    "hi_latn_prompt": "jisne aapko janm diya wo hai aapki ",
+    "hi_latn_target": "maa"
+  },
+  {
+    "concept_id": "e300_077_father_parent",
+    "category": "s06_people_kinship_roles",
+    "en_prompt": "The man who raised you alongside your mother is your ",
+    "en_target": "father",
+    "hi_deva_prompt": "माँ के साथ आपको पालने वाला है आपका ",
+    "hi_deva_target": "पिता",
+    "hi_latn_prompt": "maa ke saath aapko paalne wala hai aapka ",
+    "hi_latn_target": "pita"
+  },
+  {
+    "concept_id": "e300_079_sister_sibling",
+    "category": "s06_people_kinship_roles",
+    "en_prompt": "Your parents' other daughter is your ",
+    "en_target": "sister",
+    "hi_deva_prompt": "आपके माता-पिता की दूसरी बेटी है आपकी ",
+    "hi_deva_target": "बहन",
+    "hi_latn_prompt": "aapke maata-pita ki doosri beti hai aapki ",
+    "hi_latn_target": "behen"
+  },
+  {
+    "concept_id": "e300_092_river_flow",
+    "category": "s07_plants_natural_objects",
+    "en_prompt": "Water that flows to the sea is a ",
+    "en_target": "river",
+    "hi_deva_prompt": "समुद्र की ओर बहने वाला पानी है ",
+    "hi_deva_target": "नदी",
+    "hi_latn_prompt": "samudra ki or behne wala paani hai ",
+    "hi_latn_target": "nadi"
+  },
+  {
+    "concept_id": "e300_099_sun_daylight",
+    "category": "s07_plants_natural_objects",
+    "en_prompt": "During the day the sky is lit by the ",
+    "en_target": "sun",
+    "hi_deva_prompt": "दिन में आसमान को रोशन करता है ",
+    "hi_deva_target": "सूरज",
+    "hi_latn_prompt": "din mein aasmaan ko roshan karta hai ",
+    "hi_latn_target": "sooraj"
+  },
+  {
+    "concept_id": "e300_106_rain_clouds",
+    "category": "s08_events_natural_phenomena",
+    "en_prompt": "Water that falls from the clouds is ",
+    "en_target": "rain",
+    "hi_deva_prompt": "बादलों से गिरने वाला पानी है ",
+    "hi_deva_target": "बारिश",
+    "hi_latn_prompt": "baadalon se girne wala paani hai ",
+    "hi_latn_target": "baarish"
+  },
+  {
+    "concept_id": "e300_107_fire_combustion",
+    "category": "s08_events_natural_phenomena",
+    "en_prompt": "The process that produces heat and light by burning material is ",
+    "en_target": "fire",
+    "hi_deva_prompt": "पदार्थ जलने से गर्मी और रोशनी पैदा करने वाली प्रक्रिया है ",
+    "hi_deva_target": "आग",
+    "hi_latn_prompt": "padaarth jalne se garmi aur roshni paida karne wali prakriya hai ",
+    "hi_latn_target": "aag"
+  },
+  {
+    "concept_id": "e300_121_morning_sunrise",
+    "category": "s09_time_quantity_shape",
+    "en_prompt": "The part of the day when the sun rises is the ",
+    "en_target": "morning",
+    "hi_deva_prompt": "जब सूरज निकलता है वह वक़्त है ",
+    "hi_deva_target": "सुबह",
+    "hi_latn_prompt": "jab sooraj nikalta hai wo waqt hai ",
+    "hi_latn_target": "subah"
+  },
+  {
+    "concept_id": "e300_122_night_dark",
+    "category": "s09_time_quantity_shape",
+    "en_prompt": "The part of the day that is dark is the ",
+    "en_target": "night",
+    "hi_deva_prompt": "दिन का जो हिस्सा अँधेरा होता है वह है ",
+    "hi_deva_target": "रात",
+    "hi_latn_prompt": "din ka jo hissa andhera hota hai wo hai ",
+    "hi_latn_target": "raat"
+  },
+  {
+    "concept_id": "e300_136_idea_thought",
+    "category": "s10_cognition_emotion_state_relation",
+    "en_prompt": "A thought or suggestion formed in the mind is an ",
+    "en_target": "idea",
+    "hi_deva_prompt": "मन में आया नया खयाल या सुझाव होता है ",
+    "hi_deva_target": "विचार",
+    "hi_latn_prompt": "man mein aaya naya khayaal ya sujhaav hota hai ",
+    "hi_latn_target": "vichaar"
+  },
+  {
+    "concept_id": "e300_140_happiness_joy",
+    "category": "s10_cognition_emotion_state_relation",
+    "en_prompt": "The emotional state of joy and satisfaction is ",
+    "en_target": "happiness",
+    "hi_deva_prompt": "आनंद और संतोष की भावनात्मक अवस्था है ",
+    "hi_deva_target": "ख़ुशी",
+    "hi_latn_prompt": "aanand aur santosh ki bhaavanaatmak avastha hai ",
+    "hi_latn_target": "khushi"
+  },
+  {
+    "concept_id": "e300_151_walk_foot",
+    "category": "s11_motion_posture",
+    "en_prompt": "To move forward on foot at a normal pace is to ",
+    "en_target": "walk",
+    "hi_deva_prompt": "पैरों से सामान्य गति में आगे बढ़ने को कहते हैं ",
+    "hi_deva_target": "चलना",
+    "hi_latn_prompt": "pairon se saamaanya gati mein aage badhne ko kehte hain ",
+    "hi_latn_target": "chalna"
+  },
+  {
+    "concept_id": "e300_152_run_fast",
+    "category": "s11_motion_posture",
+    "en_prompt": "To move quickly on foot with both feet briefly off the ground is to ",
+    "en_target": "run",
+    "hi_deva_prompt": "पैरों से बहुत तेज़ आगे बढ़ने को कहते हैं ",
+    "hi_deva_target": "दौड़ना",
+    "hi_latn_prompt": "pairon se bahut tez aage badhne ko kehte hain ",
+    "hi_latn_target": "daudna"
+  },
+  {
+    "concept_id": "e300_153_sit_seat",
+    "category": "s11_motion_posture",
+    "en_prompt": "To place the body's weight on a seat is to ",
+    "en_target": "sit",
+    "hi_deva_prompt": "शरीर का भार किसी आसन पर रखकर रहने को कहते हैं ",
+    "hi_deva_target": "बैठना",
+    "hi_latn_prompt": "shareer ka bhaar kisi aasan par rakhkar rehne ko kehte hain ",
+    "hi_latn_target": "baithna"
+  },
+  {
+    "concept_id": "e300_166_see_eyes",
+    "category": "s12_perception_sensory_experience",
+    "en_prompt": "To perceive something using the eyes is to ",
+    "en_target": "see",
+    "hi_deva_prompt": "आँखों से किसी चीज़ को ग्रहण करने की क्रिया है ",
+    "hi_deva_target": "देखना",
+    "hi_latn_prompt": "aankhon se kisi cheez ko grahan karne ki kriya hai ",
+    "hi_latn_target": "dekhna"
+  },
+  {
+    "concept_id": "e300_171_listen_attention",
+    "category": "s12_perception_sensory_experience",
+    "en_prompt": "To pay attention to a sound is to ",
+    "en_target": "listen",
+    "hi_deva_prompt": "किसी आवाज़ पर ध्यान देने को कहते हैं ",
+    "hi_deva_target": "सुनना",
+    "hi_latn_prompt": "kisi aawaaz par dhyaan dene ko kehte hain ",
+    "hi_latn_target": "sunna"
+  },
+  {
+    "concept_id": "e300_181_speak_words",
+    "category": "s13_communication",
+    "en_prompt": "To produce words using the voice is to ",
+    "en_target": "speak",
+    "hi_deva_prompt": "आवाज़ से शब्द व्यक्त करने को कहते हैं ",
+    "hi_deva_target": "बोलना",
+    "hi_latn_prompt": "aawaaz se shabd vyakt karne ko kehte hain ",
+    "hi_latn_target": "bolna"
+  },
+  {
+    "concept_id": "e300_182_write_letters",
+    "category": "s13_communication",
+    "en_prompt": "To record language by making letters or symbols is to ",
+    "en_target": "write",
+    "hi_deva_prompt": "अक्षर या चिन्ह बनाकर भाषा दर्ज करने को कहते हैं ",
+    "hi_deva_target": "लिखना",
+    "hi_latn_prompt": "akshar ya chinh banaakar bhaasha darj karne ko kehte hain ",
+    "hi_latn_target": "likhna"
+  },
+  {
+    "concept_id": "e300_183_read_text",
+    "category": "s13_communication",
+    "en_prompt": "To understand written or printed words is to ",
+    "en_target": "read",
+    "hi_deva_prompt": "लिखे या छपे शब्दों का अर्थ समझने को कहते हैं ",
+    "hi_deva_target": "पढ़ना",
+    "hi_latn_prompt": "likhe ya chhape shabdon ka arth samajhne ko kehte hain ",
+    "hi_latn_target": "padhna"
+  },
+  {
+    "concept_id": "e300_196_think_mind",
+    "category": "s14_cognition_emotion_verbs",
+    "en_prompt": "To use the mind to consider something is to ",
+    "en_target": "think",
+    "hi_deva_prompt": "मन से किसी बात पर विचार करने को कहते हैं ",
+    "hi_deva_target": "सोचना",
+    "hi_latn_prompt": "man se kisi baat par vichaar karne ko kehte hain ",
+    "hi_latn_target": "sochna"
+  },
+  {
+    "concept_id": "e300_198_understand_meaning",
+    "category": "s14_cognition_emotion_verbs",
+    "en_prompt": "To grasp the meaning or explanation of something is to ",
+    "en_target": "understand",
+    "hi_deva_prompt": "किसी बात का अर्थ या कारण जान लेने को कहते हैं ",
+    "hi_deva_target": "समझना",
+    "hi_latn_prompt": "kisi baat ka arth ya kaaran jaan lene ko kehte hain ",
+    "hi_latn_target": "samajhna"
+  },
+  {
+    "concept_id": "e300_199_remember_past",
+    "category": "s14_cognition_emotion_verbs",
+    "en_prompt": "To bring previously learned information back to mind is to ",
+    "en_target": "remember",
+    "hi_deva_prompt": "पहले सीखी बात को फिर मन में लाने को कहते हैं ",
+    "hi_deva_target": "याद करना",
+    "hi_latn_prompt": "pehle seekhi baat ko phir man mein laane ko kehte hain ",
+    "hi_latn_target": "yaad karna"
+  },
+  {
+    "concept_id": "e300_211_eat_food",
+    "category": "s15_contact_creation_consumption",
+    "en_prompt": "To take solid food into the body is to ",
+    "en_target": "eat",
+    "hi_deva_prompt": "ठोस भोजन शरीर के भीतर लेने को कहते हैं ",
+    "hi_deva_target": "खाना",
+    "hi_latn_prompt": "thos bhojan shareer ke bheetar lene ko kehte hain ",
+    "hi_latn_target": "khaana"
+  },
+  {
+    "concept_id": "e300_213_open_access",
+    "category": "s15_contact_creation_consumption",
+    "en_prompt": "To move or remove a barrier so entry becomes possible is to ",
+    "en_target": "open",
+    "hi_deva_prompt": "रुकावट हटाकर अंदर जाने का रास्ता बनाने को कहते हैं ",
+    "hi_deva_target": "खोलना",
+    "hi_latn_prompt": "rukaawat hataakar andar jaane ka raasta banaane ko kehte hain ",
+    "hi_latn_target": "kholna"
+  },
+  {
+    "concept_id": "e300_226_give_transfer",
+    "category": "s16_social_possession_change",
+    "en_prompt": "To transfer something from oneself to another person is to ",
+    "en_target": "give",
+    "hi_deva_prompt": "अपनी कोई चीज़ दूसरे व्यक्ति को सौंपने को कहते हैं ",
+    "hi_deva_target": "देना",
+    "hi_latn_prompt": "apni koi cheez doosre vyakti ko saumpne ko kehte hain ",
+    "hi_latn_target": "dena"
+  },
+  {
+    "concept_id": "e300_230_help_support",
+    "category": "s16_social_possession_change",
+    "en_prompt": "To make another person's task easier through support is to ",
+    "en_target": "help",
+    "hi_deva_prompt": "सहयोग देकर दूसरे व्यक्ति का काम आसान करने को कहते हैं ",
+    "hi_deva_target": "मदद करना",
+    "hi_latn_prompt": "sahyog dekar doosre vyakti ka kaam aasaan karne ko kehte hain ",
+    "hi_latn_target": "madad karna"
+  },
+  {
+    "concept_id": "e300_241_red_tomato",
+    "category": "s17_colour_sensory_properties",
+    "en_prompt": "Human blood is coloured ",
+    "en_target": "red",
+    "hi_deva_prompt": "इंसान के खून का रंग होता है ",
+    "hi_deva_target": "लाल",
+    "hi_latn_prompt": "insaan ke khoon ka rang hota hai ",
+    "hi_latn_target": "laal"
+  },
+  {
+    "concept_id": "e300_248_sweet_sugar",
+    "category": "s17_colour_sensory_properties",
+    "en_prompt": "The taste of sugar is ",
+    "en_target": "sweet",
+    "hi_deva_prompt": "चीनी का स्वाद होता है ",
+    "hi_deva_target": "मीठा",
+    "hi_latn_prompt": "cheeni ka swaad hota hai ",
+    "hi_latn_target": "meetha"
+  },
+  {
+    "concept_id": "e300_252_soft_cotton",
+    "category": "s17_colour_sensory_properties",
+    "en_prompt": "Cotton feels ",
+    "en_target": "soft",
+    "hi_deva_prompt": "रुई छूने में होती है ",
+    "hi_deva_target": "मुलायम",
+    "hi_latn_prompt": "rui chhoone mein hoti hai ",
+    "hi_latn_target": "mulaayam"
+  },
+  {
+    "concept_id": "e300_256_big_elephant",
+    "category": "s18_size_temperature_physical_state",
+    "en_prompt": "Compared with a mouse, an elephant is ",
+    "en_target": "big",
+    "hi_deva_prompt": "चूहे की तुलना में हाथी होता है ",
+    "hi_deva_target": "बड़ा",
+    "hi_latn_prompt": "chuhe ki tulna mein haathi hota hai ",
+    "hi_latn_target": "bada"
+  },
+  {
+    "concept_id": "e300_258_hot_boiling_water",
+    "category": "s18_size_temperature_physical_state",
+    "en_prompt": "Water that has just boiled is ",
+    "en_target": "hot",
+    "hi_deva_prompt": "अभी-अभी उबला पानी होता है ",
+    "hi_deva_target": "गर्म",
+    "hi_latn_prompt": "abhi-abhi ubla paani hota hai ",
+    "hi_latn_target": "garam"
+  },
+  {
+    "concept_id": "e300_271_happy_good_news",
+    "category": "s19_affective_evaluative_properties",
+    "en_prompt": "A person who has received wonderful news feels ",
+    "en_target": "happy",
+    "hi_deva_prompt": "बहुत अच्छी खबर पाने वाला व्यक्ति होता है ",
+    "hi_deva_target": "ख़ुश",
+    "hi_latn_prompt": "bahut achchhi khabar paane wala vyakti hota hai ",
+    "hi_latn_target": "khush"
+  },
+  {
+    "concept_id": "e300_273_good_helpful",
+    "category": "s19_affective_evaluative_properties",
+    "en_prompt": "An action that honestly helps another person is ",
+    "en_target": "good",
+    "hi_deva_prompt": "जो काम ईमानदारी से किसी की मदद करे वह होता है ",
+    "hi_deva_target": "अच्छा",
+    "hi_latn_prompt": "jo kaam imaandaari se kisi ki madad kare vah hota hai ",
+    "hi_latn_target": "achchha"
+  },
+  {
+    "concept_id": "e300_278_difficult_task",
+    "category": "s19_affective_evaluative_properties",
+    "en_prompt": "A task requiring much effort and skill is ",
+    "en_target": "difficult",
+    "hi_deva_prompt": "जिस काम में बहुत मेहनत और कौशल लगे वह होता है ",
+    "hi_deva_target": "कठिन",
+    "hi_latn_prompt": "jis kaam mein bahut mehnat aur kaushal lage vah hota hai ",
+    "hi_latn_target": "kathin"
+  },
+  {
+    "concept_id": "e300_286_quickly_fast",
+    "category": "s20_manner_time_frequency_location",
+    "en_prompt": "The adverb meaning \"at high speed\" is ",
+    "en_target": "quickly",
+    "hi_deva_prompt": "तेज़ गति से का अर्थ देने वाला क्रिया-विशेषण है ",
+    "hi_deva_target": "जल्दी",
+    "hi_latn_prompt": "tez gati se ka arth dene wala kriya-visheshan hai ",
+    "hi_latn_target": "jaldi"
+  },
+  {
+    "concept_id": "e300_289_always_every_time",
+    "category": "s20_manner_time_frequency_location",
+    "en_prompt": "The adverb meaning \"on every occasion\" is ",
+    "en_target": "always",
+    "hi_deva_prompt": "हर अवसर पर का अर्थ देने वाला क्रिया-विशेषण है ",
+    "hi_deva_target": "हमेशा",
+    "hi_latn_prompt": "har avsar par ka arth dene wala kriya-visheshan hai ",
+    "hi_latn_target": "hamesha"
+  }
+]

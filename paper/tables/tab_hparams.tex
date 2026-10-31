@@ -1,0 +1,23 @@
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lc}
+\toprule
+\textbf{Hyperparameter} & \textbf{Value} \\
+\midrule
+Base model & Qwen/Qwen2.5-7B \\
+LoRA rank $r$ & 8 \\
+LoRA alpha $\alpha$ & 16 \\
+Target modules & q\_proj, k\_proj, v\_proj, o\_proj, gate\_proj, up\_proj, down\_proj \\
+Optimizer & AdamW ($\beta_1=0.9, \beta_2=0.999$) \\
+Learning rate & 2e-4 \\
+Batch size / gradient accumulation & 4 / 4 (effective 16) \\
+Max sequence length & 512 \\
+Training epochs & 3 \\
+Head selection budgets $k$ & 34, 112 (of 336 heads) \\
+MLP layer budget $k_{\text{mlp}}$ & 3 (of 28 layers) \\
+\bottomrule
+\end{tabular}
+\caption{Hyperparameters and training configurations for Stage 2 circuit routing.}
+\label{tab:hparams}
+\end{table}

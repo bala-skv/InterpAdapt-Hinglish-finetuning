@@ -1,0 +1,502 @@
+[
+ {
+  "concept_id": "E300-001",
+  "category": "Animals",
+  "en_prompt": "A common pet that barks and guards the house. The English word for this is: ",
+  "en_target": "dog",
+  "hi_deva_prompt": "एक आम पालतू जानवर जो भौंकता है और घर की रखवाली करता है। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "कुत्ता",
+  "hi_latn_prompt": "Ek aam paaltu jaanvar jo bhaunkta hai aur ghar ki rakhvaali karta hai. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "kutta"
+ },
+ {
+  "concept_id": "E300-007",
+  "category": "Animals",
+  "en_prompt": "An insect with large colorful wings that emerges from a chrysalis. The English word for this is: ",
+  "en_target": "butterfly",
+  "hi_deva_prompt": "बड़े रंग-बिरंगे पंखों वाला कीट जो कोष से निकलता है। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "तितली",
+  "hi_latn_prompt": "Bade rang-birange pankhon vaala keet jo kosh se nikalta hai. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "titli"
+ },
+ {
+  "concept_id": "E300-015",
+  "category": "Animals",
+  "en_prompt": "A nocturnal bird with big round eyes that hoots. The English word for this is: ",
+  "en_target": "owl",
+  "hi_deva_prompt": "बड़ी गोल आँखों वाला रात्रिचर पक्षी जो घू-घू करता है। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "उल्लू",
+  "hi_latn_prompt": "Badi gol aankhon vaala raatrichar pakshi jo ghoo-ghoo karta hai. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "ullu"
+ },
+ {
+  "concept_id": "E300-016",
+  "category": "Body and sensory organs",
+  "en_prompt": "The organ of the face used for seeing. The English word for this is: ",
+  "en_target": "eye",
+  "hi_deva_prompt": "चेहरे का वह अंग जिससे देखा जाता है। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "आँख",
+  "hi_latn_prompt": "Chehre ka vah ang jisse dekha jaata hai. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "aankh"
+ },
+ {
+  "concept_id": "E300-021",
+  "category": "Body and sensory organs",
+  "en_prompt": "The uppermost part of the body, where the hair grows. The English word for this is: ",
+  "en_target": "head",
+  "hi_deva_prompt": "शरीर का सबसे ऊपरी भाग, जहाँ बाल उगते हैं। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "सिर",
+  "hi_latn_prompt": "Shareer ka sabse oopri bhaag, jahaan baal ugte hain. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "sir"
+ },
+ {
+  "concept_id": "E300-028",
+  "category": "Body and sensory organs",
+  "en_prompt": "The outer covering of the human body. The English word for this is: ",
+  "en_target": "skin",
+  "hi_deva_prompt": "मानव शरीर का बाहरी आवरण। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "त्वचा",
+  "hi_latn_prompt": "Maanav shareer ka baahri aavaran. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "tvacha"
+ },
+ {
+  "concept_id": "E300-031",
+  "category": "Artifacts and tools",
+  "en_prompt": "A bound set of printed pages that you read. The English word for this is: ",
+  "en_target": "book",
+  "hi_deva_prompt": "छपे हुए पन्नों का जिल्द वाला संग्रह जिसे पढ़ा जाता है। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "किताब",
+  "hi_latn_prompt": "Chhape hue pannon ka jild vaala sangrah jise padha jaata hai. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "kitaab"
+ },
+ {
+  "concept_id": "E300-036",
+  "category": "Artifacts and tools",
+  "en_prompt": "A piece of furniture with a flat top and legs, used for writing or dining. The English word for this is: ",
+  "en_target": "table",
+  "hi_deva_prompt": "समतल सतह और पायों वाला फ़र्नीचर जिस पर लिखा या खाना खाया जाता है। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "मेज़",
+  "hi_latn_prompt": "Samtal satah aur paayon vaala furniture jis par likha ya khaana khaaya jaata hai. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "mez"
+ },
+ {
+  "concept_id": "E300-045",
+  "category": "Artifacts and tools",
+  "en_prompt": "A set of rungs or steps for going up to a higher place. The English word for this is: ",
+  "en_target": "ladder",
+  "hi_deva_prompt": "ऊँची जगह पर पहुँचने के लिए डंडों या पायदानों की श्रृंखला। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "सीढ़ी",
+  "hi_latn_prompt": "Oonchi jagah par pahunchne ke liye dandon ya paaydaanon ki shrinkhala. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "seedhi"
+ },
+ {
+  "concept_id": "E300-047",
+  "category": "Food and substances",
+  "en_prompt": "The white nutritious liquid mammals produce to feed their young. The English word for this is: ",
+  "en_target": "milk",
+  "hi_deva_prompt": "वह सफ़ेद पौष्टिक तरल जो स्तनधारी अपने बच्चों को पिलाने के लिए बनाते हैं। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "दूध",
+  "hi_latn_prompt": "Vah safed paushtik taral jo stanadhaari apne bachchon ko pilaane ke liye banaate hain. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "doodh"
+ },
+ {
+  "concept_id": "E300-053",
+  "category": "Food and substances",
+  "en_prompt": "A pungent layered bulb vegetable that makes your eyes water. The English word for this is: ",
+  "en_target": "onion",
+  "hi_deva_prompt": "तेज़ गंध वाली परतदार कंद सब्ज़ी जिससे आँखों में आँसू आ जाते हैं। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "प्याज़",
+  "hi_latn_prompt": "Tez gandh vaali partdaar kand sabzi jisse aankhon mein aansoo aa jaate hain. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "pyaaz"
+ },
+ {
+  "concept_id": "E300-060",
+  "category": "Food and substances",
+  "en_prompt": "A tangy white food made by fermenting milk. The English word for this is: ",
+  "en_target": "yogurt",
+  "hi_deva_prompt": "दूध को जमाकर बनाया गया खट्टा-सा सफ़ेद भोजन। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "दही",
+  "hi_latn_prompt": "Doodh ko jamaakar banaaya gaya khatta-sa safed bhojan. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "dahi"
+ },
+ {
+  "concept_id": "E300-061",
+  "category": "Places and locations",
+  "en_prompt": "A building where a family lives. The English word for this is: ",
+  "en_target": "house",
+  "hi_deva_prompt": "वह इमारत जहाँ कोई परिवार रहता है। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "घर",
+  "hi_latn_prompt": "Vah imaarat jahaan koi parivaar rehta hai. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "ghar"
+ },
+ {
+  "concept_id": "E300-066",
+  "category": "Places and locations",
+  "en_prompt": "A built-up settlement with streets, markets and local government. The English word for this is: ",
+  "en_target": "town",
+  "hi_deva_prompt": "सड़कों, बाज़ारों और स्थानीय प्रशासन वाली घनी आबादी। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "शहर",
+  "hi_latn_prompt": "Sadkon, baazaaron aur sthaaneey prashaasan vaali ghani aabaadi. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "shehar"
+ },
+ {
+  "concept_id": "E300-075",
+  "category": "Places and locations",
+  "en_prompt": "A burial ground full of graves and memorial stones. The English word for this is: ",
+  "en_target": "cemetery",
+  "hi_deva_prompt": "क़ब्रों और स्मारक-पत्थरों से भरा दफ़नाने का मैदान। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "समाधिक्षेत्र",
+  "hi_latn_prompt": "Kabron aur smaarak-pattharon se bhara dafnaane ka maidaan. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "samaadhikshetra"
+ },
+ {
+  "concept_id": "E300-076",
+  "category": "People, kinship, and social roles",
+  "en_prompt": "The woman who gives birth to a child and raises it. The English word for this is: ",
+  "en_target": "mother",
+  "hi_deva_prompt": "वह स्त्री जो किसी बच्चे को जन्म देती है और पालती है। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "माँ",
+  "hi_latn_prompt": "Vah stri jo kisi bachche ko janm deti hai aur paalti hai. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "maa"
+ },
+ {
+  "concept_id": "E300-082",
+  "category": "People, kinship, and social roles",
+  "en_prompt": "A person you like and trust and enjoy spending time with, who is not a relative. The English word for this is: ",
+  "en_target": "friend",
+  "hi_deva_prompt": "वह व्यक्ति जिसे आप पसंद और भरोसा करते हैं और जो रिश्तेदार नहीं है। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "दोस्त",
+  "hi_latn_prompt": "Vah vyakti jise aap pasand aur bharosa karte hain aur jo rishtedaar nahin hai. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "dost"
+ },
+ {
+  "concept_id": "E300-090",
+  "category": "People, kinship, and social roles",
+  "en_prompt": "A person who visits your home and is received with hospitality. The English word for this is: ",
+  "en_target": "guest",
+  "hi_deva_prompt": "वह व्यक्ति जो आपके घर आता है और जिसका आदर-सत्कार किया जाता है। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "मेहमान",
+  "hi_latn_prompt": "Vah vyakti jo aapke ghar aata hai aur jiska aadar-satkaar kiya jaata hai. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "mehmaan"
+ },
+ {
+  "concept_id": "E300-092",
+  "category": "Plants and natural objects",
+  "en_prompt": "A large natural flowing watercourse, like the Ganga or the Yamuna. The English word for this is: ",
+  "en_target": "river",
+  "hi_deva_prompt": "गंगा या यमुना जैसी बड़ी प्राकृतिक बहती जलधारा। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "नदी",
+  "hi_latn_prompt": "Ganga ya Yamuna jaisi badi praakritik behti jaldhaara. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "nadi"
+ },
+ {
+  "concept_id": "E300-097",
+  "category": "Plants and natural objects",
+  "en_prompt": "The colorful, often fragrant part of a plant that blooms. The English word for this is: ",
+  "en_target": "flower",
+  "hi_deva_prompt": "पौधे का रंग-बिरंगा, अक्सर सुगंधित भाग जो खिलता है। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "फूल",
+  "hi_latn_prompt": "Paudhe ka rang-birangaa, aksar sugandhit bhaag jo khilta hai. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "phool"
+ },
+ {
+  "concept_id": "E300-105",
+  "category": "Plants and natural objects",
+  "en_prompt": "A large body of still freshwater surrounded by land. The English word for this is: ",
+  "en_target": "lake",
+  "hi_deva_prompt": "ज़मीन से घिरा मीठे पानी का बड़ा ठहरा हुआ भंडार। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "झील",
+  "hi_latn_prompt": "Zameen se ghira meethe paani ka bada thehra hua bhandaar. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "jheel"
+ },
+ {
+  "concept_id": "E300-106",
+  "category": "Events and natural phenomena",
+  "en_prompt": "Drops of water falling from the clouds. The English word for this is: ",
+  "en_target": "rain",
+  "hi_deva_prompt": "बादलों से गिरती पानी की बूँदें। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "बारिश",
+  "hi_latn_prompt": "Baadalon se girti paani ki boondein. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "baarish"
+ },
+ {
+  "concept_id": "E300-111",
+  "category": "Events and natural phenomena",
+  "en_prompt": "Frozen white flakes of water that fall in cold weather. The English word for this is: ",
+  "en_target": "snow",
+  "hi_deva_prompt": "ठंड में गिरने वाले पानी के जमे हुए सफ़ेद फाहे। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "बर्फ़",
+  "hi_latn_prompt": "Thand mein girne vaale paani ke jame hue safed phaahe. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "barf"
+ },
+ {
+  "concept_id": "E300-118",
+  "category": "Events and natural phenomena",
+  "en_prompt": "A series of giant ocean waves caused by an underwater quake. The English word for this is: ",
+  "en_target": "tsunami",
+  "hi_deva_prompt": "समुद्र के भीतर आए भूचाल से उठने वाली विशाल लहरों की शृंखला। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "सुनामी",
+  "hi_latn_prompt": "Samudra ke bheetar aaye bhoochaal se uthne vaali vishaal lahron ki shrinkhala. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "sunaami"
+ },
+ {
+  "concept_id": "E300-122",
+  "category": "Time, quantity, and shape",
+  "en_prompt": "The dark part of the day after the sun has set. The English word for this is: ",
+  "en_target": "night",
+  "hi_deva_prompt": "दिन का वह अँधेरा भाग जो सूरज डूबने के बाद आता है। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "रात",
+  "hi_latn_prompt": "Din ka vah andhera bhaag jo sooraj doobne ke baad aata hai. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "raat"
+ },
+ {
+  "concept_id": "E300-126",
+  "category": "Time, quantity, and shape",
+  "en_prompt": "A period of twelve months or 365 days. The English word for this is: ",
+  "en_target": "year",
+  "hi_deva_prompt": "बारह महीनों या 365 दिनों की अवधि। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "वर्ष",
+  "hi_latn_prompt": "Baarah maheenon ya 365 dinon ki avadhi. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "varsh"
+ },
+ {
+  "concept_id": "E300-133",
+  "category": "Time, quantity, and shape",
+  "en_prompt": "Two matching things taken together, like shoes or gloves. The English word for this is: ",
+  "en_target": "pair",
+  "hi_deva_prompt": "साथ में गिनी जाने वाली दो मेल खाती चीज़ें, जैसे जूते या दस्ताने। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "जोड़ा",
+  "hi_latn_prompt": "Saath mein ginee jaane vaali do mel khaati cheezein, jaise joote ya dastaane. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "joda"
+ },
+ {
+  "concept_id": "E300-137",
+  "category": "Cognition, emotion, state, and relation",
+  "en_prompt": "The ability of the mind to store and recall past experiences. The English word for this is: ",
+  "en_target": "memory",
+  "hi_deva_prompt": "मन की वह क्षमता जिससे बीते अनुभव सँजोए और दोहराए जाते हैं। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "स्मृति",
+  "hi_latn_prompt": "Man ki vah kshamta jisse beete anubhav sanjoye aur dohraaye jaate hain. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "smriti"
+ },
+ {
+  "concept_id": "E300-142",
+  "category": "Cognition, emotion, state, and relation",
+  "en_prompt": "The bond of mutual affection and trust between two people who are not relatives. The English word for this is: ",
+  "en_target": "friendship",
+  "hi_deva_prompt": "दो ऐसे लोगों के बीच आपसी लगाव और भरोसे का बंधन जो रिश्तेदार नहीं हैं। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "मित्रता",
+  "hi_latn_prompt": "Do aise logon ke beech aapsi lagaav aur bharose ka bandhan jo rishtedaar nahin hain. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "mitrata"
+ },
+ {
+  "concept_id": "E300-149",
+  "category": "Cognition, emotion, state, and relation",
+  "en_prompt": "The sad feeling of being alone with no one to talk to. The English word for this is: ",
+  "en_target": "loneliness",
+  "hi_deva_prompt": "अकेले होने की उदास अनुभूति जब बात करने को कोई न हो। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "तनहाई",
+  "hi_latn_prompt": "Akele hone ki udaas anubhooti jab baat karne ko koi na ho. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "tanhai"
+ },
+ {
+  "concept_id": "E300-151",
+  "category": "Motion and posture",
+  "en_prompt": "To move forward on foot, one step after another. The English word for this is: ",
+  "en_target": "walk",
+  "hi_deva_prompt": "पैरों से एक-एक क़दम रखकर आगे बढ़ना। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "चलना",
+  "hi_latn_prompt": "Pairon se ek-ek kadam rakhkar aage badhna. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "chalna"
+ },
+ {
+  "concept_id": "E300-164",
+  "category": "Motion and posture",
+  "en_prompt": "To move forward close to the ground on the belly or on hands and knees. The English word for this is: ",
+  "en_target": "crawl",
+  "hi_deva_prompt": "पेट या हाथ-घुटनों के बल ज़मीन से सटकर आगे बढ़ना। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "रेंगना",
+  "hi_latn_prompt": "Pet ya haath-ghutnon ke bal zameen se satkar aage badhna. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "rengna"
+ },
+ {
+  "concept_id": "E300-166",
+  "category": "Perception and sensory experience",
+  "en_prompt": "To use your eyes to take in what is in front of you. The English word for this is: ",
+  "en_target": "see",
+  "hi_deva_prompt": "आँखों के ज़रिये सामने की चीज़ का बोध पाना। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "देखना",
+  "hi_latn_prompt": "Aankhon ke zariye saamne ki cheez ka bodh paana. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "dekhna"
+ },
+ {
+  "concept_id": "E300-180",
+  "category": "Perception and sensory experience",
+  "en_prompt": "To sparkle and reflect light, like gold or jewels. The English word for this is: ",
+  "en_target": "glitter",
+  "hi_deva_prompt": "सोने या हीरे की तरह रोशनी लौटाकर जगमगाना। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "चमकना",
+  "hi_latn_prompt": "Sone ya heere ki tarah roshni lautaakar jagmagaana. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "chamakna"
+ },
+ {
+  "concept_id": "E300-181",
+  "category": "Communication",
+  "en_prompt": "To use your voice to produce words. The English word for this is: ",
+  "en_target": "speak",
+  "hi_deva_prompt": "आवाज़ से शब्द निकालना। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "बोलना",
+  "hi_latn_prompt": "Aavaaz se shabd nikaalna. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "bolna"
+ },
+ {
+  "concept_id": "E300-191",
+  "category": "Communication",
+  "en_prompt": "To give lessons so that students gain knowledge. The English word for this is: ",
+  "en_target": "teach",
+  "hi_deva_prompt": "विद्यार्थियों को ज्ञान मिले इसलिए पाठ देना। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "पढ़ाना",
+  "hi_latn_prompt": "Vidyaarthiyon ko gyaan mile isliye paath dena. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "padhaana"
+ },
+ {
+  "concept_id": "E300-196",
+  "category": "Cognition and emotion",
+  "en_prompt": "To use your mind to consider something. The English word for this is: ",
+  "en_target": "think",
+  "hi_deva_prompt": "किसी बात पर मन में ग़ौर करना। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "सोचना",
+  "hi_latn_prompt": "Kisi baat par man mein gaur karna. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "sochna"
+ },
+ {
+  "concept_id": "E300-208",
+  "category": "Cognition and emotion",
+  "en_prompt": "To feel afraid of something threatening. The English word for this is: ",
+  "en_target": "fear",
+  "hi_deva_prompt": "ख़तरे की आशंका से सहम जाना। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "डरना",
+  "hi_latn_prompt": "Khatre ki aashanka se saham jaana. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "darna"
+ },
+ {
+  "concept_id": "E300-212",
+  "category": "Contact, creation, and consumption",
+  "en_prompt": "To take liquid into your mouth and swallow it. The English word for this is: ",
+  "en_target": "drink",
+  "hi_deva_prompt": "तरल को मुँह में लेकर गले से उतारना। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "पीना",
+  "hi_latn_prompt": "Taral ko munh mein lekar gale se utaarna. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "peena"
+ },
+ {
+  "concept_id": "E300-225",
+  "category": "Contact, creation, and consumption",
+  "en_prompt": "To remove soil with a spade to make a hole in the ground. The English word for this is: ",
+  "en_target": "dig",
+  "hi_deva_prompt": "फावड़े से मिट्टी हटाकर ज़मीन में गड्ढा बनाना। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "खोदना",
+  "hi_latn_prompt": "Phaavde se mitti hataakar zameen mein gaddha banaana. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "khodna"
+ },
+ {
+  "concept_id": "E300-226",
+  "category": "Social interaction, possession, and change",
+  "en_prompt": "To hand something over so that another person has it. The English word for this is: ",
+  "en_target": "give",
+  "hi_deva_prompt": "कोई चीज़ किसी के हवाले करना ताकि वह उसकी हो जाए। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "देना",
+  "hi_latn_prompt": "Koi cheez kisi ke havaale karna taaki vah uski ho jaaye. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "dena"
+ },
+ {
+  "concept_id": "E300-237",
+  "category": "Social interaction, possession, and change",
+  "en_prompt": "To make or become different from before. The English word for this is: ",
+  "en_target": "change",
+  "hi_deva_prompt": "पहले से भिन्न कर देना या हो जाना। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "बदलना",
+  "hi_latn_prompt": "Pehle se bhinn kar dena ya ho jaana. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "badalna"
+ },
+ {
+  "concept_id": "E300-241",
+  "category": "Colour and sensory properties",
+  "en_prompt": "The color of ripe tomatoes and vermilion. The English word for this is: ",
+  "en_target": "red",
+  "hi_deva_prompt": "पके टमाटर और सिंदूर का रंग। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "लाल",
+  "hi_latn_prompt": "Pake tamaatar aur sindoor ka rang. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "laal"
+ },
+ {
+  "concept_id": "E300-255",
+  "category": "Colour and sensory properties",
+  "en_prompt": "Full of light, giving off a lot of illumination. The English word for this is: ",
+  "en_target": "bright",
+  "hi_deva_prompt": "जिसमें खूब उजाला हो। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "रोशन",
+  "hi_latn_prompt": "Jisme khoob ujaala ho. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "roshan"
+ },
+ {
+  "concept_id": "E300-256",
+  "category": "Size, temperature, and physical state",
+  "en_prompt": "Of greater than average size. The English word for this is: ",
+  "en_target": "big",
+  "hi_deva_prompt": "औसत से अधिक आकार का। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "बड़ा",
+  "hi_latn_prompt": "Ausat se adhik aakaar ka. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "bada"
+ },
+ {
+  "concept_id": "E300-268",
+  "category": "Size, temperature, and physical state",
+  "en_prompt": "Soiled with mud, grime or filth. The English word for this is: ",
+  "en_target": "dirty",
+  "hi_deva_prompt": "कीचड़, मैल या कचरे से सना हुआ। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "गंदा",
+  "hi_latn_prompt": "Keechad, mail ya kachre se sana hua. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "ganda"
+ },
+ {
+  "concept_id": "E300-271",
+  "category": "Affective and evaluative properties",
+  "en_prompt": "Feeling pleased and content. The English word for this is: ",
+  "en_target": "happy",
+  "hi_deva_prompt": "जिसके मन में आनंद और संतोष हो। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "ख़ुश",
+  "hi_latn_prompt": "Jiske man mein aanand aur santosh ho. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "khush"
+ },
+ {
+  "concept_id": "E300-284",
+  "category": "Affective and evaluative properties",
+  "en_prompt": "Not in accordance with reality, as in a made-up story. The English word for this is: ",
+  "en_target": "false",
+  "hi_deva_prompt": "जो हक़ीक़त से मेल न खाए, जैसे गढ़ी हुई बात। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "झूठा",
+  "hi_latn_prompt": "Jo haqeeqat se mel na khaaye, jaise gadhi hui baat. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "jhootha"
+ },
+ {
+  "concept_id": "E300-286",
+  "category": "Manner, time, frequency, and location",
+  "en_prompt": "At great speed, taking little time. The English word for this is: ",
+  "en_target": "quickly",
+  "hi_deva_prompt": "तेज़ गति से, कम समय लेते हुए। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "जल्दी",
+  "hi_latn_prompt": "Tez gati se, kam samay lete hue. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "jaldi"
+ },
+ {
+  "concept_id": "E300-300",
+  "category": "Manner, time, frequency, and location",
+  "en_prompt": "Without any delay at all, at once. The English word for this is: ",
+  "en_target": "immediately",
+  "hi_deva_prompt": "बिना ज़रा भी देर किए, उसी क्षण। इसके लिए हिंदी शब्द है: ",
+  "hi_deva_target": "तुरंत",
+  "hi_latn_prompt": "Bina zara bhi der kiye, usi kshan. Iske liye Hindi shabd hai: ",
+  "hi_latn_target": "turant"
+ }
+]
