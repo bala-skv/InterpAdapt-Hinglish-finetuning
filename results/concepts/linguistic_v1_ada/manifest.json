@@ -1,0 +1,91 @@
+{
+ "name": "linguistic_v1_ada",
+ "created_utc": "2026-10-30T15:06:18Z",
+ "steps": {
+  "check": {
+   "started_utc": "2026-10-30T15:06:18Z",
+   "status": "ok",
+   "finished_utc": "2026-10-30T15:06:18Z",
+   "seconds": 0
+  },
+  "validate": {
+   "started_utc": "2026-10-30T16:29:04Z",
+   "status": "failed",
+   "seconds": 345
+  },
+  "heads": {
+   "started_utc": "2026-10-30T16:40:07Z",
+   "status": "ok",
+   "finished_utc": "2026-10-30T17:43:32Z",
+   "seconds": 3805,
+   "device": "NVIDIA GeForce RTX 2080 Ti"
+  },
+  "heads_analysis": {
+   "started_utc": "2026-10-30T17:51:42Z",
+   "status": "failed",
+   "seconds": 9
+  },
+  "mlp": {
+   "started_utc": "2026-10-30T18:26:38Z",
+   "status": "ok",
+   "finished_utc": "2026-10-30T18:46:29Z",
+   "seconds": 1190,
+   "device": "NVIDIA GeForce RTX 2080 Ti"
+  },
+  "mlp_analysis": {
+   "started_utc": "2026-10-30T18:47:12Z",
+   "status": "ok",
+   "finished_utc": "2026-10-30T18:47:15Z",
+   "seconds": 3
+  },
+  "curve": {
+   "started_utc": "2026-10-30T18:53:09Z",
+   "status": "ok",
+   "finished_utc": "2026-10-30T18:56:53Z",
+   "seconds": 224,
+   "device": "NVIDIA GeForce RTX 2080 Ti"
+  },
+  "noise": {
+   "started_utc": "2026-10-30T18:57:56Z",
+   "status": "ok",
+   "finished_utc": "2026-10-30T19:19:24Z",
+   "seconds": 1289,
+   "device": "NVIDIA GeForce RTX 2080 Ti"
+  },
+  "shortlist": {
+   "started_utc": "2026-10-30T19:19:53Z",
+   "status": "ok",
+   "finished_utc": "2026-10-30T19:19:54Z",
+   "seconds": 1
+  },
+  "pairs": {
+   "started_utc": "2026-10-30T21:10:38Z",
+   "status": "ok",
+   "finished_utc": "2026-10-30T23:11:04Z",
+   "seconds": 7226,
+   "device": "NVIDIA GeForce RTX 2080 Ti"
+  },
+  "interactions": {
+   "started_utc": "2026-10-30T23:13:48Z",
+   "status": "ok",
+   "finished_utc": "2026-10-30T23:13:53Z",
+   "seconds": 4
+  },
+  "plots": {
+   "started_utc": "2026-10-30T23:13:53Z",
+   "status": "ok",
+   "finished_utc": "2026-10-30T23:13:57Z",
+   "seconds": 4
+  },
+  "report": {
+   "started_utc": "2026-10-30T23:13:57Z",
+   "status": "ok",
+   "finished_utc": "2026-10-30T23:13:57Z",
+   "seconds": 0
+  }
+ },
+ "concepts_source": "/home2/ashish123/InterpAdapt-Hinglish-finetuning/data/tracing/linguistic_v1.json",
+ "concepts_sha256": "19d9d3b16163df2e",
+ "git_commit": "898cc18",
+ "device": "NVIDIA GeForce RTX 2080 Ti"
+}
