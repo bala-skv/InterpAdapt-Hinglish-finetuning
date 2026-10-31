@@ -32,6 +32,9 @@ model to load.
 Usage::
 
     python scripts/stage2/train_cra_compare.py --config configs/cra_compare.yaml
+    # any config value can be overridden per run (see docs/stage2_ling_study.md):
+    python scripts/stage2/train_cra_compare.py --config configs/cra_ling.yaml \
+        --mask-mode topk --set cra.tag=H-topk112 --set train.seed=1
     python scripts/stage2/train_cra_compare.py --config configs/cra_compare.yaml \
         --mask-mode random --resume runs/cra-random-20260929-101500
 
@@ -75,6 +78,13 @@ from circuit_routing.masked_lora import (
     topk_mask_from_scores_global,
     uniform_mask,
 )
+from circuit_routing.mlp_routing import (
+    build_layer_gates,
+    inject_mlp_lora,
+    load_layer_scores,
+    split_wrappers,
+    total_effective_params,
+)
 from circuit_routing.model_loading import load_model, load_tokenizer, verify_base_checkpoint
 from circuit_routing.seeding import set_seed
 
@@ -106,6 +116,20 @@ class CraCfg:
     soft_normalize: bool = True
     # random: seed for the matched-budget random head set (report it).
     random_seed: int = 0
+    # ---- MLP routing (off by default -> behaviour identical to the head-only CRA) ----
+    # MLP projections that receive a layer-gated LoRA, e.g. ["down_proj"]. Empty = none.
+    # Set target_modules=[] and mlp_modules=[...] for an MLP-only adapter.
+    mlp_modules: List[str] = field(default_factory=list)
+    # Per-layer MLP scores: {"scores": [28 floats]}. Required unless the MLP mode is uniform.
+    mlp_scores_file: Optional[str] = None
+    # uniform | soft | topk | random for the MLP layers; null -> same as mask_mode.
+    mlp_mode: Optional[str] = None
+    # topk/random: number of MLP layers kept (down_proj-only k=3 ~ 252k LoRA params).
+    mlp_k_layers: int = 3
+    # random layer set seed; null -> random_seed.
+    mlp_random_seed: Optional[int] = None
+    # Free-text label for this arm (used in run names and the model card).
+    tag: Optional[str] = None
 
 
 @dataclass
@@ -195,6 +219,29 @@ def load_cra_config(path: Optional[str]) -> CraConfig:
     )
 
 
+def apply_overrides(cfg: CraConfig, overrides: List[str]) -> None:
+    """Apply ``section.field=value`` overrides (value parsed as YAML), e.g.
+    ``--set cra.k_total=34 --set train.seed=1 --set 'wandb.tags=[stage2,x]'``.
+    Unknown sections/fields raise, so a typo can never silently run the wrong arm."""
+    import yaml
+
+    for item in overrides:
+        if "=" not in item:
+            raise SystemExit(f"--set expects key=value, got {item!r}")
+        key, raw = item.split("=", 1)
+        value = yaml.safe_load(raw)
+        if key == "output_dir":
+            cfg.output_dir = str(value)
+            continue
+        section, _, name = key.partition(".")
+        if section not in _SECTIONS or not name:
+            raise SystemExit(f"--set {key}: use <section>.<field> with section in {sorted(_SECTIONS)}")
+        target = getattr(cfg, section)
+        if name not in {f.name for f in dataclasses.fields(target)}:
+            raise SystemExit(f"--set {key}: {type(target).__name__} has no field {name!r}")
+        setattr(target, name, value)
+
+
 # --------------------------------------------------------------------------- #
 # Stage-1 scores -> per-module head masks
 # --------------------------------------------------------------------------- #
@@ -232,7 +279,7 @@ def build_head_masks(cfg: CraConfig, layout, log) -> Optional[Dict[str, "object"
     the ``per_layer`` ablation control.
     """
     mode = cfg.cra.mask_mode
-    if mode == "uniform":
+    if mode == "uniform" or not cfg.cra.target_modules:
         return None
     if mode not in _MASK_MODES:
         raise ValueError(f"cra.mask_mode must be one of {_MASK_MODES}, got {mode!r}")
@@ -323,11 +370,26 @@ def build_cra_model(cfg: CraConfig, tokenizer, log):
         dropout=cfg.cra.dropout,
         target_modules=tuple(cfg.cra.target_modules),
     )
+    # Always runs first: it freezes the whole base (also when the attention list is empty).
     wrappers = inject_masked_lora(model, layout, spec, head_masks=head_masks)
-    if not wrappers:
+    if cfg.cra.target_modules and not wrappers:
         raise SystemExit(
             f"no target modules {cfg.cra.target_modules} were wrapped; check the model"
         )
+    if cfg.cra.mlp_modules:
+        mlp_mode = cfg.cra.mlp_mode or cfg.cra.mask_mode
+        mlp_scores = (load_layer_scores(cfg.cra.mlp_scores_file, layout.num_layers)
+                      if mlp_mode != "uniform" else None)
+        gates = build_layer_gates(
+            mlp_mode, layout.num_layers, mlp_scores, cfg.cra.mlp_k_layers,
+            cfg.cra.random_seed if cfg.cra.mlp_random_seed is None else cfg.cra.mlp_random_seed)
+        mlp_wrappers = inject_mlp_lora(model, spec, gates, tuple(cfg.cra.mlp_modules))
+        log.info("built MLP %s gates | layers on: %s | modules %s",
+                 mlp_mode, [i for i, g in enumerate(gates.tolist()) if g != 0.0], cfg.cra.mlp_modules)
+        wrappers = wrappers + mlp_wrappers
+    if not wrappers:
+        raise SystemExit("neither attention nor MLP modules were wrapped: set cra.target_modules "
+                         "and/or cra.mlp_modules")
 
     trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
     total = sum(p.numel() for p in model.parameters())
@@ -338,15 +400,17 @@ def build_cra_model(cfg: CraConfig, tokenizer, log):
             f"expected LoRA-only training (<1% of params) but {100.0 * trainable / total:.2f}% "
             f"are trainable ({trainable}/{total}) -- the base model was not frozen"
         )
-    budget = adapted_budget(wrappers)
-    active = sum(w.active_heads for w in wrappers)
+    parts = split_wrappers(wrappers)
+    budget = adapted_budget(parts["attn"])
+    active = sum(w.active_heads for w in parts["attn"])
     gpu_name = torch.cuda.get_device_name(0) if torch.cuda.is_available() else "cpu"
     major = torch.cuda.get_device_capability()[0] if torch.cuda.is_available() else None
     log.info(
-        "CRA[%s/%s] r=%d on %s | wrappers=%d active_heads=%d budget=%d | "
-        "trainable %d / %d (%.3f%%) | gpu=%s cap=%s",
-        cfg.cra.mask_mode, cfg.cra.scope, cfg.cra.rank, cfg.cra.target_modules, len(wrappers),
-        active, budget, trainable, total, 100.0 * trainable / total, gpu_name, major,
+        "CRA[%s/%s] r=%d on %s + mlp %s | wrappers=%d (attn %d, mlp %d) active_heads=%d budget=%d "
+        "effective_params=%d | trainable %d / %d (%.3f%%) | gpu=%s cap=%s",
+        cfg.cra.mask_mode, cfg.cra.scope, cfg.cra.rank, cfg.cra.target_modules, cfg.cra.mlp_modules,
+        len(wrappers), len(parts["attn"]), len(parts["mlp"]), active, budget,
+        total_effective_params(wrappers), trainable, total, 100.0 * trainable / total, gpu_name, major,
     )
     return model, wrappers, layout
 
@@ -415,7 +479,8 @@ def _macro_f1(gold: List[str], pred: List[str]) -> float:
     return sum(f1s) / len(f1s)
 
 
-def evaluate(model, wrappers, tokenizer, examples: List[Example], device, max_len: int) -> dict:
+def evaluate(model, wrappers, tokenizer, examples: List[Example], device, max_len: int,
+             return_preds: bool = False) -> dict:
     """Base-vs-CRA accuracy + macro-F1. The base pass zeroes every head mask."""
     model.eval()
     label_ids = {
@@ -436,7 +501,7 @@ def evaluate(model, wrappers, tokenizer, examples: List[Example], device, max_le
         return sum(1 for g, p in zip(gold, pred) if g == p) / n if n else float("nan")
 
     base_acc, cra_acc = _acc(base_pred), _acc(cra_pred)
-    return {
+    out = {
         "n_eval": n,
         "base_acc": base_acc,
         "cra_acc": cra_acc,
@@ -444,6 +509,9 @@ def evaluate(model, wrappers, tokenizer, examples: List[Example], device, max_le
         "base_macro_f1": _macro_f1(gold, base_pred),
         "cra_macro_f1": _macro_f1(gold, cra_pred),
     }
+    if return_preds:
+        out["_preds"] = {"gold": gold, "base": base_pred, "cra": cra_pred}
+    return out
 
 
 # --------------------------------------------------------------------------- #
@@ -565,15 +633,23 @@ def train(cfg: CraConfig, run_dir: Path, resume: bool, log) -> dict:
     )
 
     model, wrappers, layout = build_cra_model(cfg, tokenizer, log)
-    budget = adapted_budget(wrappers)
-    active_heads = sum(w.active_heads for w in wrappers)
+    parts = split_wrappers(wrappers)
+    budget = adapted_budget(parts["attn"])
+    active_heads = sum(w.active_heads for w in parts["attn"])
+    effective = total_effective_params(wrappers)
     gpu_name = torch.cuda.get_device_name(0) if torch.cuda.is_available() else "cpu"
     # Snapshot the matched-budget accounting for the write-up / reviewer.
     write_json(run_dir / "budget.json", {
         "mask_mode": cfg.cra.mask_mode,
         "scope": cfg.cra.scope,
+        "tag": cfg.cra.tag,
         "adapted_budget": budget,
         "active_heads": active_heads,
+        "effective_params": effective,
+        "mlp_wrappers": len(parts["mlp"]),
+        "mlp_modules": list(cfg.cra.mlp_modules),
+        "mlp_mode": (cfg.cra.mlp_mode or cfg.cra.mask_mode) if cfg.cra.mlp_modules else None,
+        "mlp_k_layers": cfg.cra.mlp_k_layers if cfg.cra.mlp_modules else None,
         "num_wrappers": len(wrappers),
         "rank": cfg.cra.rank,
         "k_per_layer": cfg.cra.k if cfg.cra.scope == "per_layer" and cfg.cra.mask_mode in ("topk", "random") else None,
@@ -655,13 +731,19 @@ def train(cfg: CraConfig, run_dir: Path, resume: bool, log) -> dict:
         return {"interrupted": True, "step": step}
 
     log.info("training complete at step %d; running final eval...", step)
-    metrics = evaluate(model, wrappers, tokenizer, eval_ex, device, cfg.data.max_len)
+    metrics = evaluate(model, wrappers, tokenizer, eval_ex, device, cfg.data.max_len,
+                       return_preds=True)
+    write_json(run_dir / "preds.json", metrics.pop("_preds"))
     metrics.update({
         "step": step,
         "mask_mode": cfg.cra.mask_mode,
         "scope": cfg.cra.scope,
+        "tag": cfg.cra.tag,
+        "seed": cfg.train.seed,
         "adapted_budget": budget,
         "active_heads": active_heads,
+        "effective_params": effective,
+        "mlp_wrappers": len(parts["mlp"]),
         "gpu": gpu_name,
     })
 
@@ -685,11 +767,16 @@ def main() -> int:
         "--resume", default=None,
         help="Existing run dir to resume from its ckpt.pt (safe after a timeout).",
     )
+    parser.add_argument(
+        "--set", dest="overrides", action="append", default=[], metavar="SECTION.FIELD=VALUE",
+        help="Override a config value, repeatable, e.g. --set cra.k_total=34 --set train.seed=1.",
+    )
     args = parser.parse_args()
 
     cfg = load_cra_config(args.config)
     if args.mask_mode:
         cfg.cra.mask_mode = args.mask_mode
+    apply_overrides(cfg, args.overrides)
     set_seed(cfg.train.seed, cfg.train.deterministic)
 
     resume = args.resume is not None
@@ -698,7 +785,7 @@ def main() -> int:
         if not run_dir.exists():
             raise SystemExit(f"--resume dir not found: {run_dir}")
     else:
-        run_dir = make_run_dir(cfg.output_dir, f"cra-{cfg.cra.mask_mode}")
+        run_dir = make_run_dir(cfg.output_dir, f"cra-{cfg.cra.tag or cfg.cra.mask_mode}")
 
     log = get_logger("cra_compare", run_dir)
     write_json(run_dir / "config.json", dataclasses.asdict(cfg))
@@ -717,11 +804,13 @@ def main() -> int:
     done_marker.write_text("ok\n", encoding="utf-8")
 
     log.info(
-        "RESULT mask_mode=%s scope=%s n_eval=%d base_acc=%.4f cra_acc=%.4f delta_acc=%+.4f "
-        "base_macro_f1=%.4f cra_macro_f1=%.4f budget=%d active_heads=%d gpu=%s",
-        metrics["mask_mode"], metrics["scope"], metrics["n_eval"], metrics["base_acc"], metrics["cra_acc"],
-        metrics["delta_acc"], metrics["base_macro_f1"], metrics["cra_macro_f1"],
-        metrics["adapted_budget"], metrics["active_heads"], metrics["gpu"],
+        "RESULT tag=%s mask_mode=%s scope=%s seed=%s n_eval=%d base_acc=%.4f cra_acc=%.4f "
+        "delta_acc=%+.4f base_macro_f1=%.4f cra_macro_f1=%.4f budget=%d active_heads=%d "
+        "effective_params=%d gpu=%s",
+        metrics["tag"], metrics["mask_mode"], metrics["scope"], metrics["seed"], metrics["n_eval"],
+        metrics["base_acc"], metrics["cra_acc"], metrics["delta_acc"], metrics["base_macro_f1"],
+        metrics["cra_macro_f1"], metrics["adapted_budget"], metrics["active_heads"],
+        metrics["effective_params"], metrics["gpu"],
     )
     return 0
 

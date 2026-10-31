@@ -1,0 +1,81 @@
+# ---------------------------------------------------------------------------
+# Stage-2 CRA on the linguistic concept set (second set, 39 concepts passing the
+# pre-specified validation thresholds). Same task, metric, hyper-parameters and
+# base model as configs/cra_compare.yaml; only the score files, output folder and
+# W&B project differ. One arm per invocation (see docs/stage2_ling_study.md).
+#
+#   head arms : mask_mode uniform | soft | topk | random   (target q_proj + o_proj)
+#   MLP arms  : --set cra.target_modules=[] --set cra.mlp_modules=[down_proj]
+#   both      : mlp_modules=[down_proj] with the default target_modules
+# ---------------------------------------------------------------------------
+output_dir: "runs/ling_study"
+
+model:
+  name: "Qwen/Qwen2.5-1.5B"
+  revision: "8faed761d45a263340a0528343f099c05c9a4323"
+  dtype: "float16"
+  trust_remote_code: false
+  forbid_instruct: true
+  expect_num_layers: 28
+  expect_num_attention_heads: 12
+  expect_num_key_value_heads: 2
+
+quant:
+  bnb_4bit_quant_type: "nf4"
+  bnb_4bit_compute_dtype: "float16"
+  bnb_4bit_use_double_quant: true
+
+cra:
+  mask_mode: "topk"
+  scope: "global"
+  rank: 8
+  alpha: 16
+  dropout: 0.05
+  target_modules: ["q_proj", "o_proj"]
+  scores_file: "data/stage2_scores/ling39_heads.json"
+  k: 4
+  k_total: 112
+  soft_floor: 0.0
+  soft_normalize: true
+  random_seed: 0
+  # MLP routing is off unless an arm sets mlp_modules (see the header).
+  mlp_modules: []
+  mlp_scores_file: "data/stage2_scores/ling39_mlp.json"
+  mlp_mode: null
+  mlp_k_layers: 3
+  mlp_random_seed: null
+  tag: null
+
+data:
+  jsonl_train: null
+  jsonl_eval: null
+  hf_dataset: "satyam-arora-iiit-hyderabad/babyshark-sail2017-stage2"
+  hf_config: null
+  hf_train_split: "train"
+  hf_eval_split: "validation"
+  hf_train_file: "sanitized/train.txt"
+  hf_eval_file: "sanitized/validation.txt"
+  train_size: null
+  eval_size: null
+  max_len: 256
+
+train:
+  seed: 0
+  deterministic: true
+  batch_size: 4
+  grad_accum_steps: 8       # effective batch 32
+  lr: 1.0e-4
+  weight_decay: 0.01
+  warmup_steps: 30
+  max_steps: 600
+  ckpt_every: 100
+  eval_every: 200
+  max_grad_norm: 1.0
+
+wandb:
+  enabled: true
+  project: "babyshark-cra-ling"
+  entity: null              # set with: --set wandb.entity=<your entity> (launch_study.sh reads $WANDB_ENTITY)
+  run_name: null            # null -> the run-dir name, e.g. H-topk112-s0
+  mode: "online"
+  tags: ["stage2", "linguistic_v1", "ling39"]

@@ -20,6 +20,17 @@
 #     MASK_MODE=topk    sbatch cluster/train_cra_compare.slurm
 #     MASK_MODE=random  sbatch cluster/train_cra_compare.slurm
 #
+# Per-arm overrides (any config value) go in EXTRA, e.g. a second seed on another
+# config. scripts/stage2/launch_study.sh builds all of these for the linguistic study:
+#
+#     CONFIG=configs/cra_ling.yaml MASK_MODE=topk RUN_DIR=runs/ling_study/H-topk112-s1 \
+#       EXTRA="--set cra.tag=H-topk112 --set train.seed=1 --set cra.random_seed=1" \
+#       sbatch cluster/train_cra_compare.slurm
+#
+# Cluster settings (account, qos, GPU type) are read from the environment by sbatch and
+# therefore also reach the self-resubmitted jobs, unlike flags on the command line:
+#     export SBATCH_ACCOUNT=research SBATCH_QOS=medium SBATCH_CONSTRAINT=2080ti
+#
 # soft/topk/random need Stage-1 scores at the path in cra.scores_file
 # (default data/stage1_head_scores.json). uniform ignores it.
 #
@@ -36,6 +47,7 @@ mkdir -p logs
 
 CONFIG="${CONFIG:-configs/cra_compare.yaml}"
 MASK_MODE="${MASK_MODE:-soft}"     # uniform | soft | topk | random
+EXTRA="${EXTRA:-}"                 # extra trainer arguments, e.g. "--set train.seed=1"
 # One durable run dir per arm, reused across the whole chain.
 RUN_DIR="${RUN_DIR:-runs/cra-${MASK_MODE}-$(date +%Y%m%d-%H%M%S)}"
 mkdir -p "${RUN_DIR}"
@@ -45,6 +57,7 @@ echo " CRA[${MASK_MODE}] job ${SLURM_JOB_ID:-<local>} on $(hostname)"
 echo "   repo root : ${REPO_ROOT}"
 echo "   config    : ${CONFIG}"
 echo "   mask mode : ${MASK_MODE}"
+echo "   extra     : ${EXTRA:-<none>}"
 echo "   run dir   : ${RUN_DIR}"
 echo "   started   : $(date -Is)"
 echo "=============================================================="
@@ -94,8 +107,12 @@ echo "--- verifying CUDA -------------------------------------------"
 python cluster/check_env.py || { echo "env check failed" >&2; exit 3; }
 
 # --- Run training in the background so we can forward SIGUSR1 to it ----------
+# shellcheck disable=SC2086   (EXTRA is intentionally word-split into arguments;
+#                              globbing is off so values like [down_proj] stay literal)
+set -f
 python scripts/stage2/train_cra_compare.py --config "${CONFIG}" --mask-mode "${MASK_MODE}" \
-    --resume "${RUN_DIR}" &
+    ${EXTRA} --resume "${RUN_DIR}" &
+set +f
 PYPID=$!
 
 _forward_usr1() {
