@@ -44,6 +44,8 @@ ROLE = {
     "M-soft": "CRA: down_proj LoRA scaled per layer by normalised MLP recovery.",
     "HM-topk": "CRA: top-112 heads plus the top-3 MLP layers.",
     "HM-random": "CRA control: 112 random heads plus 3 random MLP layers.",
+    "HM-topk34": "CRA: top-34 heads (about 10%) plus the top-3 MLP layers.",
+    "HM-random34": "CRA control: 34 random heads plus 3 random MLP layers.",
 }
 
 

@@ -42,6 +42,8 @@ COMPARISONS = [
     ("MLP layers k=3: top-k minus random", "M-topk3", "M-random3"),
     ("heads+MLP: top-k minus random", "HM-topk", "HM-random"),
     ("heads+MLP top-k minus heads-only top-k", "HM-topk", "H-topk112"),
+    ("heads+MLP at 34 heads: top-k minus random", "HM-topk34", "HM-random34"),
+    ("heads+MLP minus heads-only at 34 heads (top-k)", "HM-topk34", "H-topk34"),
 ]
 
 
@@ -147,8 +149,13 @@ def main() -> int:
             pb = sum((runs[y][s]["preds"]["cra"] for s in common), [])
             ci = paired_bootstrap(gold, pa, pb, a.boot)
         same_sign = all(d > 0 for d in per_seed) or all(d < 0 for d in per_seed)
-        verdict = ("consistent direction and CI excludes 0" if same_sign and ci and (ci[0] > 0 or ci[1] < 0)
-                   else "not distinguishable (mixed signs, or CI includes 0)")
+        if len(common) < 3:
+            verdict = ("single seed: indicative only (the interval covers evaluation noise, not "
+                       "seed-to-seed variation)")
+        elif same_sign and ci and (ci[0] > 0 or ci[1] < 0):
+            verdict = "consistent direction and CI excludes 0"
+        else:
+            verdict = "not distinguishable (mixed signs, or CI includes 0)"
         out["comparisons"].append({
             "title": title, "a": x, "b": y, "seeds": common, "per_seed_diff": per_seed,
             "mean_diff": float(np.mean(per_seed)), "bootstrap_ci95": ci, "verdict": verdict})

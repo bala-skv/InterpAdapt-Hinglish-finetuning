@@ -17,6 +17,10 @@
 #   WANDB_ENTITY   W&B user/team to log under             (default: your W&B default)
 #   CONFIG         trainer config                         (default configs/cra_ling.yaml)
 #   DRYRUN=1       print the jobs, submit nothing
+#   LOCAL=1        run jobs here, one after another, instead of sbatch (use inside an
+#                  interactive GPU session). SHARD=i/n then takes every n-th job, so n
+#                  sessions split the work:  LOCAL=1 SHARD=0/4 TIER=1 bash ... (session 1),
+#                  SHARD=1/4 (session 2), ... Finished runs are skipped; reruns resume.
 #   SMOKE=1        20 steps, 64 eval examples, W&B tagged "smoke"
 #
 # Tiers (arm: what it tests; "x3" = three seeds):
@@ -31,7 +35,11 @@
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/../.."
 
-: "${CONDA_ENV:?set CONDA_ENV=<env with torch, transformers, wandb>}"
+LOCAL="${LOCAL:-0}"
+SHARD="${SHARD:-}"
+if [[ "${LOCAL}" != "1" ]]; then : "${CONDA_ENV:?set CONDA_ENV=<env with torch, transformers, wandb>}"; fi
+SH_I=0; SH_N=1
+if [[ -n "${SHARD}" ]]; then SH_I="${SHARD%/*}"; SH_N="${SHARD#*/}"; fi
 TIER="${TIER:-1}"; [[ "${TIER}" == "all" ]] && TIER="1,2,3,4"
 SEEDS="${SEEDS:-0 1 2}"
 CONFIG="${CONFIG:-configs/cra_ling.yaml}"
@@ -75,7 +83,11 @@ SMOKE_TAG=""
 if [[ "${SMOKE}" == "1" ]]; then SMOKE_TAG=",smoke"; fi
 mkdir -p "runs/${STUDY}" logs
 LEDGER="runs/${STUDY}/submitted.tsv"
-n_sub=0; n_skip=0
+n_sub=0; n_skip=0; idx=0; failed=""
+if [[ "${LOCAL}" == "1" ]]; then
+    export HF_HOME="${HF_HOME:-/ssd_scratch/${USER:-$(id -un)}/hf_cache}"; mkdir -p "${HF_HOME}"
+    export HF_HUB_DISABLE_XET=1 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True TOKENIZERS_PARALLELISM=false PYTHONUNBUFFERED=1
+fi
 for tier in ${TIER//,/ }; do
     declare -n ARMS="ARMS_${tier}"
     for spec in "${ARMS[@]}"; do
@@ -84,6 +96,8 @@ for tier in ${TIER//,/ }; do
         for seed in ${seeds}; do
             run="${arm}-s${seed}"
             run_dir="runs/${STUDY}/${run}"
+            my_idx=${idx}; idx=$((idx + 1))
+            if (( my_idx % SH_N != SH_I )); then continue; fi      # another session's job
             if [[ -f "${run_dir}/DONE" ]]; then
                 echo "[skip] ${run}: DONE"; n_skip=$((n_skip + 1)); continue
             fi
@@ -93,6 +107,16 @@ for tier in ${TIER//,/ }; do
             if [[ "${DRYRUN}" == "1" ]]; then
                 echo "         EXTRA=${EXTRA}"; continue
             fi
+            if [[ "${LOCAL}" == "1" ]]; then
+                mkdir -p "${run_dir}"; export WANDB_DIR="${run_dir}"
+                set -f
+                # shellcheck disable=SC2086
+                if python scripts/stage2/train_cra_compare.py --config "${CONFIG}" --mask-mode "${mode}" \
+                       ${EXTRA} --resume "${run_dir}" 2>&1 | tee -a "${run_dir}/local.log"; then :; else failed+=" ${run}"; fi
+                set +f
+                [[ -f "${run_dir}/DONE" ]] || failed+=" ${run}"
+                n_sub=$((n_sub + 1)); continue
+            fi
             jid=$(CONFIG="${CONFIG}" MASK_MODE="${mode}" RUN_DIR="${run_dir}" EXTRA="${EXTRA}" \
                   CONDA_ENV="${CONDA_ENV}" sbatch --parsable --job-name="cra-${run}" \
                   --export=ALL cluster/train_cra_compare.slurm)
@@ -101,5 +125,6 @@ for tier in ${TIER//,/ }; do
         done
     done
 done
-echo "submitted ${n_sub} job(s), skipped ${n_skip} finished. Ledger: ${LEDGER}"
+echo "handled ${n_sub} job(s), skipped ${n_skip} finished. Ledger: ${LEDGER}"
+[[ -z "${failed}" ]] || echo "NOT DONE (rerun the same command to resume):${failed}"
 [[ "${DRYRUN}" == "1" ]] || echo "watch: squeue -u \$USER | grep cra- ; summarise: python scripts/stage2/summarize_study.py --study ${STUDY}"

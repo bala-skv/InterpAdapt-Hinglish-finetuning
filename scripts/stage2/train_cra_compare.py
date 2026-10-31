@@ -565,6 +565,14 @@ def load_checkpoint(path: Path, model, optimizer, scheduler) -> int:
 # --------------------------------------------------------------------------- #
 # W&B (same graceful-degradation pattern as the baseline)
 # --------------------------------------------------------------------------- #
+def _new_run_id() -> str:
+    """8-char W&B run id; stdlib only (wandb.util.generate_id was removed in newer wandb)."""
+    import secrets
+    import string
+
+    return "".join(secrets.choice(string.ascii_lowercase + string.digits) for _ in range(8))
+
+
 def _init_wandb(cfg: CraConfig, run_dir: Path, log):
     wcfg = cfg.wandb
     if not wcfg.enabled:
@@ -576,7 +584,7 @@ def _init_wandb(cfg: CraConfig, run_dir: Path, log):
         return None
 
     id_file = run_dir / "wandb_run_id"
-    run_id = id_file.read_text().strip() if id_file.exists() else wandb.util.generate_id()
+    run_id = id_file.read_text().strip() if id_file.exists() else _new_run_id()
     tags = list(wcfg.tags) + [f"mask:{cfg.cra.mask_mode}"]
     try:
         run = wandb.init(

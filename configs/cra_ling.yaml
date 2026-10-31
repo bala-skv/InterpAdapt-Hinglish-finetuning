@@ -69,7 +69,7 @@ train:
   warmup_steps: 30
   max_steps: 600
   ckpt_every: 100
-  eval_every: 200
+  eval_every: 0
   max_grad_norm: 1.0
 
 wandb:

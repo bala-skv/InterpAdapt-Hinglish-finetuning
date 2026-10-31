@@ -1,0 +1,590 @@
+{
+ "study": "ling_study",
+ "arms": {
+  "H-random112": {
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "n_seeds": 3,
+   "macro_f1_mean": 0.5943717402433075,
+   "macro_f1_sd": 0.0031560046595868843,
+   "macro_f1_per_seed": [
+    0.5968424994660361,
+    0.595456247926363,
+    0.5908164733375234
+   ],
+   "acc_mean": 0.6206349206349207,
+   "acc_per_seed": [
+    0.6222222222222222,
+    0.6198412698412699,
+    0.6198412698412699
+   ],
+   "base_macro_f1": 0.31944887797558147,
+   "adapted_budget": 229376,
+   "effective_params": 868352,
+   "active_heads": 224,
+   "mlp_wrappers": 0,
+   "gpu": "NVIDIA GeForce RTX 2080 Ti",
+   "n_eval": 1260,
+   "wandb_ids": {
+    "0": "8j11ripl",
+    "1": "qzmme4t8",
+    "2": "7mtdsg64"
+   }
+  },
+  "H-random34": {
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "n_seeds": 3,
+   "macro_f1_mean": 0.5830240297399025,
+   "macro_f1_sd": 0.003940609206995601,
+   "macro_f1_per_seed": [
+    0.5875578621287763,
+    0.5810912898828359,
+    0.5804229372080955
+   ],
+   "acc_mean": 0.6126984126984127,
+   "acc_per_seed": [
+    0.6166666666666667,
+    0.6087301587301587,
+    0.6126984126984127
+   ],
+   "base_macro_f1": 0.31944887797558147,
+   "adapted_budget": 69632,
+   "effective_params": 512000,
+   "active_heads": 68,
+   "mlp_wrappers": 0,
+   "gpu": "NVIDIA GeForce RTX 2080 Ti",
+   "n_eval": 1260,
+   "wandb_ids": {
+    "0": "id52y560",
+    "1": "290okuei",
+    "2": "9m19j0b4"
+   }
+  },
+  "H-soft": {
+   "seeds": [
+    0
+   ],
+   "n_seeds": 1,
+   "macro_f1_mean": 0.5684639011252229,
+   "macro_f1_sd": null,
+   "macro_f1_per_seed": [
+    0.5684639011252229
+   ],
+   "acc_mean": 0.6007936507936508,
+   "acc_per_seed": [
+    0.6007936507936508
+   ],
+   "base_macro_f1": 0.31944887797558147,
+   "adapted_budget": 350208,
+   "effective_params": 1038336,
+   "active_heads": 342,
+   "mlp_wrappers": 0,
+   "gpu": "NVIDIA GeForce RTX 2080 Ti",
+   "n_eval": 1260,
+   "wandb_ids": {
+    "0": "82tlxqwj"
+   }
+  },
+  "H-topk112": {
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "n_seeds": 3,
+   "macro_f1_mean": 0.5919341439298417,
+   "macro_f1_sd": 0.00703042123296824,
+   "macro_f1_per_seed": [
+    0.5964876584009154,
+    0.5954776918567739,
+    0.583837081531836
+   ],
+   "acc_mean": 0.6203703703703703,
+   "acc_per_seed": [
+    0.6238095238095238,
+    0.6214285714285714,
+    0.6158730158730159
+   ],
+   "base_macro_f1": 0.31944887797558147,
+   "adapted_budget": 229376,
+   "effective_params": 917504,
+   "active_heads": 224,
+   "mlp_wrappers": 0,
+   "gpu": "NVIDIA GeForce RTX 2080 Ti",
+   "n_eval": 1260,
+   "wandb_ids": {
+    "0": "vk75cxof",
+    "1": "xn0eu43x",
+    "2": "9ofa8zlb"
+   }
+  },
+  "H-topk34": {
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "n_seeds": 3,
+   "macro_f1_mean": 0.5764796102852344,
+   "macro_f1_sd": 0.0014261084894486953,
+   "macro_f1_per_seed": [
+    0.5756053409506096,
+    0.5757082230158083,
+    0.5781252668892856
+   ],
+   "acc_mean": 0.6074074074074074,
+   "acc_per_seed": [
+    0.6063492063492063,
+    0.6047619047619047,
+    0.6111111111111112
+   ],
+   "base_macro_f1": 0.31944887797558147,
+   "adapted_budget": 69632,
+   "effective_params": 512000,
+   "active_heads": 68,
+   "mlp_wrappers": 0,
+   "gpu": "NVIDIA GeForce RTX 2080 Ti",
+   "n_eval": 1260,
+   "wandb_ids": {
+    "0": "ct0k8q6t",
+    "1": "ua7pmxoi",
+    "2": "3sla7o1n"
+   }
+  },
+  "H-uniform": {
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "n_seeds": 3,
+   "macro_f1_mean": 0.6036883944511706,
+   "macro_f1_sd": 0.005400572224350438,
+   "macro_f1_per_seed": [
+    0.6098370711059006,
+    0.601514895675063,
+    0.5997132165725483
+   ],
+   "acc_mean": 0.6288359788359789,
+   "acc_per_seed": [
+    0.6317460317460317,
+    0.626984126984127,
+    0.6277777777777778
+   ],
+   "base_macro_f1": 0.31944887797558147,
+   "adapted_budget": 688128,
+   "effective_params": 1376256,
+   "active_heads": 672,
+   "mlp_wrappers": 0,
+   "gpu": "NVIDIA GeForce RTX 2080 Ti",
+   "n_eval": 1260,
+   "wandb_ids": {
+    "0": "kizusvrn",
+    "1": "cmsfl0hj",
+    "2": "r9luy3cc"
+   }
+  },
+  "HM-random": {
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "n_seeds": 3,
+   "macro_f1_mean": 0.5921563957551083,
+   "macro_f1_sd": 0.005451127415990366,
+   "macro_f1_per_seed": [
+    0.5983681766842526,
+    0.589930916201192,
+    0.5881700943798804
+   ],
+   "acc_mean": 0.6185185185185186,
+   "acc_per_seed": [
+    0.6238095238095238,
+    0.6166666666666667,
+    0.6150793650793651
+   ],
+   "base_macro_f1": 0.31944887797558147,
+   "adapted_budget": 229376,
+   "effective_params": 1120256,
+   "active_heads": 224,
+   "mlp_wrappers": 3,
+   "gpu": "NVIDIA GeForce RTX 2080 Ti",
+   "n_eval": 1260,
+   "wandb_ids": {
+    "0": "x8tmkawl",
+    "1": "dqa0wojs",
+    "2": "62aj5jin"
+   }
+  },
+  "HM-random34": {
+   "seeds": [
+    0
+   ],
+   "n_seeds": 1,
+   "macro_f1_mean": 0.5878524476176139,
+   "macro_f1_sd": null,
+   "macro_f1_per_seed": [
+    0.5878524476176139
+   ],
+   "acc_mean": 0.6174603174603175,
+   "acc_per_seed": [
+    0.6174603174603175
+   ],
+   "base_macro_f1": 0.31944887797558147,
+   "adapted_budget": 69632,
+   "effective_params": 763904,
+   "active_heads": 68,
+   "mlp_wrappers": 3,
+   "gpu": "NVIDIA GeForce RTX 2080 Ti",
+   "n_eval": 1260,
+   "wandb_ids": {
+    "0": "nsl95wfq"
+   }
+  },
+  "HM-topk": {
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "n_seeds": 3,
+   "macro_f1_mean": 0.589846664850972,
+   "macro_f1_sd": 0.003955488591849704,
+   "macro_f1_per_seed": [
+    0.5936946697756352,
+    0.5900535151698244,
+    0.5857918096074566
+   ],
+   "acc_mean": 0.6164021164021164,
+   "acc_per_seed": [
+    0.6198412698412699,
+    0.6150793650793651,
+    0.6142857142857143
+   ],
+   "base_macro_f1": 0.31944887797558147,
+   "adapted_budget": 229376,
+   "effective_params": 1169408,
+   "active_heads": 224,
+   "mlp_wrappers": 3,
+   "gpu": "NVIDIA GeForce RTX 2080 Ti",
+   "n_eval": 1260,
+   "wandb_ids": {
+    "0": "im73rgmz",
+    "1": "tdxw4060",
+    "2": "eec03wm1"
+   }
+  },
+  "HM-topk34": {
+   "seeds": [
+    0
+   ],
+   "n_seeds": 1,
+   "macro_f1_mean": 0.5842293726092741,
+   "macro_f1_sd": null,
+   "macro_f1_per_seed": [
+    0.5842293726092741
+   ],
+   "acc_mean": 0.6111111111111112,
+   "acc_per_seed": [
+    0.6111111111111112
+   ],
+   "base_macro_f1": 0.31944887797558147,
+   "adapted_budget": 69632,
+   "effective_params": 763904,
+   "active_heads": 68,
+   "mlp_wrappers": 3,
+   "gpu": "NVIDIA GeForce RTX 2080 Ti",
+   "n_eval": 1260,
+   "wandb_ids": {
+    "0": "0jehiq4o"
+   }
+  },
+  "M-random3": {
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "n_seeds": 3,
+   "macro_f1_mean": 0.5746173300904821,
+   "macro_f1_sd": 0.0012568548969075454,
+   "macro_f1_per_seed": [
+    0.5741786846450116,
+    0.5760347249570202,
+    0.5736385806694144
+   ],
+   "acc_mean": 0.6034391534391533,
+   "acc_per_seed": [
+    0.6063492063492063,
+    0.6031746031746031,
+    0.6007936507936508
+   ],
+   "base_macro_f1": 0.31944887797558147,
+   "adapted_budget": 0,
+   "effective_params": 251904,
+   "active_heads": 0,
+   "mlp_wrappers": 3,
+   "gpu": "NVIDIA GeForce RTX 2080 Ti",
+   "n_eval": 1260,
+   "wandb_ids": {
+    "0": "gti35wqw",
+    "1": "ky1o41ti",
+    "2": "3hd29bpf"
+   }
+  },
+  "M-soft": {
+   "seeds": [
+    0
+   ],
+   "n_seeds": 1,
+   "macro_f1_mean": 0.5846012620921427,
+   "macro_f1_sd": null,
+   "macro_f1_per_seed": [
+    0.5846012620921427
+   ],
+   "acc_mean": 0.6126984126984127,
+   "acc_per_seed": [
+    0.6126984126984127
+   ],
+   "base_macro_f1": 0.31944887797558147,
+   "adapted_budget": 0,
+   "effective_params": 1427456,
+   "active_heads": 0,
+   "mlp_wrappers": 17,
+   "gpu": "NVIDIA GeForce RTX 2080 Ti",
+   "n_eval": 1260,
+   "wandb_ids": {
+    "0": "4amq6hgx"
+   }
+  },
+  "M-topk3": {
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "n_seeds": 3,
+   "macro_f1_mean": 0.5733972829532864,
+   "macro_f1_sd": 0.0032771998739483197,
+   "macro_f1_per_seed": [
+    0.5717843144043039,
+    0.5771683562985936,
+    0.5712391781569616
+   ],
+   "acc_mean": 0.6039682539682539,
+   "acc_per_seed": [
+    0.6015873015873016,
+    0.6063492063492063,
+    0.6039682539682539
+   ],
+   "base_macro_f1": 0.31944887797558147,
+   "adapted_budget": 0,
+   "effective_params": 251904,
+   "active_heads": 0,
+   "mlp_wrappers": 3,
+   "gpu": "NVIDIA GeForce RTX 2080 Ti",
+   "n_eval": 1260,
+   "wandb_ids": {
+    "0": "vvcd6zh4",
+    "1": "g5nzotkk",
+    "2": "tpk8vzrx"
+   }
+  },
+  "M-uniform": {
+   "seeds": [
+    0
+   ],
+   "n_seeds": 1,
+   "macro_f1_mean": 0.6056736602049672,
+   "macro_f1_sd": null,
+   "macro_f1_per_seed": [
+    0.6056736602049672
+   ],
+   "acc_mean": 0.6293650793650793,
+   "acc_per_seed": [
+    0.6293650793650793
+   ],
+   "base_macro_f1": 0.31944887797558147,
+   "adapted_budget": 0,
+   "effective_params": 2351104,
+   "active_heads": 0,
+   "mlp_wrappers": 28,
+   "gpu": "NVIDIA GeForce RTX 2080 Ti",
+   "n_eval": 1260,
+   "wandb_ids": {
+    "0": "j7957kov"
+   }
+  }
+ },
+ "comparisons": [
+  {
+   "title": "heads k=112: top-k minus random",
+   "a": "H-topk112",
+   "b": "H-random112",
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "per_seed_diff": [
+    -0.00035484106512062574,
+    2.144393041092485e-05,
+    -0.006979391805687407
+   ],
+   "mean_diff": -0.002437596313465703,
+   "bootstrap_ci95": [
+    -0.008860380190795913,
+    0.0037377533649564066
+   ],
+   "verdict": "not distinguishable (mixed signs, or CI includes 0)"
+  },
+  {
+   "title": "heads k=112: top-k minus uniform LoRA",
+   "a": "H-topk112",
+   "b": "H-uniform",
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "per_seed_diff": [
+    -0.01334941270498513,
+    -0.006037203818289094,
+    -0.01587613504071228
+   ],
+   "mean_diff": -0.011754250521328835,
+   "bootstrap_ci95": [
+    -0.020463394074455743,
+    -0.0035054691612226344
+   ],
+   "verdict": "consistent direction and CI excludes 0"
+  },
+  {
+   "title": "heads k=34: top-k minus random",
+   "a": "H-topk34",
+   "b": "H-random34",
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "per_seed_diff": [
+    -0.011952521178166697,
+    -0.005383066867027608,
+    -0.002297670318809897
+   ],
+   "mean_diff": -0.006544419454668067,
+   "bootstrap_ci95": [
+    -0.01368321021352838,
+    0.0003687218753487612
+   ],
+   "verdict": "not distinguishable (mixed signs, or CI includes 0)"
+  },
+  {
+   "title": "MLP layers k=3: top-k minus random",
+   "a": "M-topk3",
+   "b": "M-random3",
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "per_seed_diff": [
+    -0.002394370240707766,
+    0.0011336313415734045,
+    -0.002399402512452853
+   ],
+   "mean_diff": -0.0012200471371957382,
+   "bootstrap_ci95": [
+    -0.011187518690500043,
+    0.008564937182301623
+   ],
+   "verdict": "not distinguishable (mixed signs, or CI includes 0)"
+  },
+  {
+   "title": "heads+MLP: top-k minus random",
+   "a": "HM-topk",
+   "b": "HM-random",
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "per_seed_diff": [
+    -0.004673506908617342,
+    0.0001225989686324258,
+    -0.0023782847724238554
+   ],
+   "mean_diff": -0.002309730904136257,
+   "bootstrap_ci95": [
+    -0.009404620930213377,
+    0.004749135352063184
+   ],
+   "verdict": "not distinguishable (mixed signs, or CI includes 0)"
+  },
+  {
+   "title": "heads+MLP top-k minus heads-only top-k",
+   "a": "HM-topk",
+   "b": "H-topk112",
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "per_seed_diff": [
+    -0.0027929886252802127,
+    -0.0054241766869495,
+    0.001954728075620582
+   ],
+   "mean_diff": -0.0020874790788697104,
+   "bootstrap_ci95": [
+    -0.006946572367051459,
+    0.0028783649025816245
+   ],
+   "verdict": "not distinguishable (mixed signs, or CI includes 0)"
+  },
+  {
+   "title": "heads+MLP at 34 heads: top-k minus random",
+   "a": "HM-topk34",
+   "b": "HM-random34",
+   "seeds": [
+    0
+   ],
+   "per_seed_diff": [
+    -0.0036230750083398044
+   ],
+   "mean_diff": -0.0036230750083398044,
+   "bootstrap_ci95": [
+    -0.017864962713390387,
+    0.009844280177821404
+   ],
+   "verdict": "single seed: indicative only (the interval covers evaluation noise, not seed-to-seed variation)"
+  },
+  {
+   "title": "heads+MLP minus heads-only at 34 heads (top-k)",
+   "a": "HM-topk34",
+   "b": "H-topk34",
+   "seeds": [
+    0
+   ],
+   "per_seed_diff": [
+    0.008624031658664544
+   ],
+   "mean_diff": 0.008624031658664544,
+   "bootstrap_ci95": [
+    -0.0036862200219695243,
+    0.02118354865345246
+   ],
+   "verdict": "single seed: indicative only (the interval covers evaluation noise, not seed-to-seed variation)"
+  }
+ ],
+ "warnings": []
+}
