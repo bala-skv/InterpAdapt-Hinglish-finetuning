@@ -1,0 +1,1055 @@
+{
+  "validity": {
+    "en_hi-latn": {
+      "n_used": 39,
+      "n_total": 39,
+      "contrast_mean": 11.502353330389557,
+      "expected": 13.27,
+      "contrast_ok": true
+    },
+    "hi-deva_hi-latn": {
+      "n_used": 39,
+      "n_total": 39,
+      "contrast_mean": 2.198182060490356,
+      "expected": 6.17,
+      "contrast_ok": false
+    },
+    "en_hi-deva": {
+      "n_used": 39,
+      "n_total": 39,
+      "contrast_mean": 8.387043991575084,
+      "expected": 16.2,
+      "contrast_ok": false
+    }
+  },
+  "structure": {
+    "en_hi-latn": {
+      "n": 39,
+      "score_mean": 0.0008272616032869046,
+      "score_std": 0.00943805415856314,
+      "score_max": 0.044499665983121765,
+      "n_heads_ci_above_zero": 116,
+      "heads_ci_above_zero": [
+        "L22H0",
+        "L21H2",
+        "L22H6",
+        "L9H3",
+        "L16H9",
+        "L22H4",
+        "L15H11",
+        "L18H11",
+        "L17H7",
+        "L20H2",
+        "L21H5",
+        "L15H9",
+        "L2H5",
+        "L10H2",
+        "L0H8",
+        "L5H5",
+        "L21H3",
+        "L6H5",
+        "L19H9",
+        "L20H8",
+        "L21H0",
+        "L19H11",
+        "L17H6",
+        "L27H6",
+        "L18H0",
+        "L22H3",
+        "L15H6",
+        "L7H10",
+        "L14H9",
+        "L21H4",
+        "L8H5",
+        "L15H2",
+        "L20H9",
+        "L27H2",
+        "L23H5",
+        "L9H2",
+        "L24H4",
+        "L16H1",
+        "L5H2",
+        "L8H9",
+        "L17H5",
+        "L4H9",
+        "L6H11",
+        "L16H7",
+        "L25H0",
+        "L17H8",
+        "L23H3",
+        "L6H0",
+        "L0H2",
+        "L25H3",
+        "L0H11",
+        "L2H1",
+        "L11H9",
+        "L18H3",
+        "L14H7",
+        "L4H2",
+        "L13H10",
+        "L24H10",
+        "L23H9",
+        "L13H5",
+        "L9H1",
+        "L16H8",
+        "L27H3",
+        "L3H9",
+        "L21H11",
+        "L17H3",
+        "L21H8",
+        "L18H2",
+        "L13H9",
+        "L4H3",
+        "L22H1",
+        "L8H11",
+        "L10H9",
+        "L18H8",
+        "L7H11",
+        "L10H11",
+        "L8H2",
+        "L6H3",
+        "L8H1",
+        "L15H10",
+        "L23H11",
+        "L12H4",
+        "L3H6",
+        "L24H5",
+        "L16H3",
+        "L26H3",
+        "L1H3",
+        "L12H5",
+        "L2H7",
+        "L26H6",
+        "L16H5",
+        "L24H1",
+        "L12H7",
+        "L17H2",
+        "L4H7",
+        "L13H1",
+        "L14H2",
+        "L11H3",
+        "L4H10",
+        "L3H3",
+        "L15H1",
+        "L2H10",
+        "L6H1",
+        "L24H3",
+        "L21H9",
+        "L25H7",
+        "L9H8",
+        "L4H8",
+        "L14H1",
+        "L19H1",
+        "L19H2",
+        "L22H8",
+        "L25H6",
+        "L14H6",
+        "L23H2",
+        "L22H2"
+      ],
+      "fwer_threshold": 0.01732826087960364,
+      "n_heads_fwer_sig": 14,
+      "heads_fwer_sig": [
+        "L22H0",
+        "L21H2",
+        "L22H6",
+        "L9H3",
+        "L16H9",
+        "L22H4",
+        "L15H11",
+        "L18H11",
+        "L17H7",
+        "L20H2",
+        "L21H5",
+        "L15H9",
+        "L2H5",
+        "L10H2"
+      ],
+      "expected_false_ci_above_zero": 8.4,
+      "top10": [
+        {
+          "head": "L22H0",
+          "mean": 0.044499665983121765,
+          "ci": [
+            0.03766759608441473,
+            0.05154837872158511
+          ],
+          "top5_freq": 1.0
+        },
+        {
+          "head": "L21H2",
+          "mean": 0.04250629091437466,
+          "ci": [
+            0.03141182684596228,
+            0.05415424272785035
+          ],
+          "top5_freq": 0.9775
+        },
+        {
+          "head": "L22H6",
+          "mean": 0.039225692348503934,
+          "ci": [
+            0.0286725536627221,
+            0.05052582990190564
+          ],
+          "top5_freq": 0.842
+        },
+        {
+          "head": "L9H3",
+          "mean": 0.03866605494798651,
+          "ci": [
+            0.03093219720957576,
+            0.04856150494915798
+          ],
+          "top5_freq": 0.907
+        },
+        {
+          "head": "L16H9",
+          "mean": 0.03831937720477609,
+          "ci": [
+            0.031013981632981896,
+            0.04749006417423762
+          ],
+          "top5_freq": 0.9455
+        },
+        {
+          "head": "L22H4",
+          "mean": 0.03366355353395807,
+          "ci": [
+            0.026810162804571,
+            0.04087847381123351
+          ],
+          "top5_freq": 0.327
+        },
+        {
+          "head": "L15H11",
+          "mean": 0.023362549461925522,
+          "ci": [
+            0.01567635341572526,
+            0.03154193152523328
+          ],
+          "top5_freq": 0.0005
+        },
+        {
+          "head": "L18H11",
+          "mean": 0.022171891892647386,
+          "ci": [
+            0.017604035257587802,
+            0.027484527670304
+          ],
+          "top5_freq": 0.0
+        },
+        {
+          "head": "L17H7",
+          "mean": 0.020794355434169645,
+          "ci": [
+            0.015369429260412399,
+            0.02658088522701986
+          ],
+          "top5_freq": 0.0
+        },
+        {
+          "head": "L20H2",
+          "mean": 0.01979611263516594,
+          "ci": [
+            0.01646226354219864,
+            0.023571100167029468
+          ],
+          "top5_freq": 0.0
+        }
+      ],
+      "leave_one_out": {
+        "L22H0": {
+          "mean": 0.044499665983121765,
+          "max_shift": 0.0017723698836013824,
+          "max_shift_concept": "E300-284",
+          "max_shift_frac": 0.039828835665274946
+        },
+        "L21H2": {
+          "mean": 0.04250629091437466,
+          "max_shift": 0.0025484230630234903,
+          "max_shift_concept": "E300-225",
+          "max_shift_frac": 0.05995402111553496
+        },
+        "L22H6": {
+          "mean": 0.039225692348503934,
+          "max_shift": 0.0031716004101565304,
+          "max_shift_concept": "E300-271",
+          "max_shift_frac": 0.08085517986472188
+        },
+        "L9H3": {
+          "mean": 0.03866605494798651,
+          "max_shift": 0.003489566898110516,
+          "max_shift_concept": "E300-284",
+          "max_shift_frac": 0.09024884754352813
+        },
+        "L16H9": {
+          "mean": 0.03831937720477609,
+          "max_shift": 0.0028417791225984895,
+          "max_shift_concept": "E300-225",
+          "max_shift_frac": 0.07416036819732794
+        }
+      },
+      "top3_by_category": {
+        "L22H0": {
+          "Affective and evaluative properties": 0.06953744968569153,
+          "Animals": 0.04967242538945755,
+          "Artifacts and tools": 0.04014260700540062,
+          "Body and sensory organs": 0.0425663131393386,
+          "Cognition and emotion": 0.024314356172274926,
+          "Cognition, emotion, state, and relation": 0.04132460692500994,
+          "Colour and sensory properties": 0.03839288289825548,
+          "Communication": 0.015229456599068259,
+          "Contact, creation, and consumption": 0.03962153993788054,
+          "Events and natural phenomena": 0.05813394095684008,
+          "Food and substances": 0.05023775171631765,
+          "Manner, time, frequency, and location": 0.006513817618108271,
+          "Motion and posture": 0.03151003569499758,
+          "People, kinship, and social roles": 0.05126724019231059,
+          "Perception and sensory experience": 0.03982455182250184,
+          "Places and locations": 0.05550257761094736,
+          "Plants and natural objects": 0.06632245726480199,
+          "Social interaction, possession, and change": 0.022182530191502167,
+          "Time, quantity, and shape": 0.06233159946353842
+        },
+        "L21H2": {
+          "Affective and evaluative properties": 0.10866767888737247,
+          "Animals": 0.06423350200008517,
+          "Artifacts and tools": 0.08434423500219287,
+          "Body and sensory organs": 0.016879040115122854,
+          "Cognition and emotion": 0.014492513802224586,
+          "Cognition, emotion, state, and relation": 0.039548831141124396,
+          "Colour and sensory properties": 0.01906576832100339,
+          "Communication": 0.018926273760472484,
+          "Contact, creation, and consumption": 0.0926427273909113,
+          "Events and natural phenomena": 0.020742291133790555,
+          "Food and substances": 0.01250028709560223,
+          "Manner, time, frequency, and location": 0.028560323193781514,
+          "Motion and posture": 0.035834106036353224,
+          "People, kinship, and social roles": 0.045290910230271014,
+          "Perception and sensory experience": 0.03518384090301843,
+          "Places and locations": 0.052354235858232456,
+          "Plants and natural objects": 0.052754295700020125,
+          "Social interaction, possession, and change": 0.01188920011191063,
+          "Time, quantity, and shape": 0.0512149513148549
+        },
+        "L22H6": {
+          "Affective and evaluative properties": 0.08850679782028313,
+          "Animals": 0.06090816847539374,
+          "Artifacts and tools": 0.04383533580511699,
+          "Body and sensory organs": -0.011187275750907022,
+          "Cognition and emotion": 0.009678230200056627,
+          "Cognition, emotion, state, and relation": 0.020402159425097186,
+          "Colour and sensory properties": 0.035188660337702696,
+          "Communication": 0.03571715557803537,
+          "Contact, creation, and consumption": 0.08867675384550522,
+          "Events and natural phenomena": 0.03532374634779766,
+          "Food and substances": 0.0374110097094774,
+          "Manner, time, frequency, and location": 0.044027334690564864,
+          "Motion and posture": 0.03529923877564053,
+          "People, kinship, and social roles": 0.031480799320827375,
+          "Perception and sensory experience": 0.01595113547654247,
+          "Places and locations": 0.05131748899139654,
+          "Plants and natural objects": 0.039501558993214676,
+          "Social interaction, possession, and change": 0.0009083385244865096,
+          "Time, quantity, and shape": 0.0622242449812303
+        }
+      }
+    },
+    "hi-deva_hi-latn": {
+      "n": 39,
+      "score_mean": 0.0026941816012571412,
+      "score_std": 0.03194113878363031,
+      "score_max": 0.30320551746098495,
+      "n_heads_ci_above_zero": 122,
+      "heads_ci_above_zero": [
+        "L21H2",
+        "L22H6",
+        "L25H8",
+        "L17H6",
+        "L17H7",
+        "L17H11",
+        "L17H8",
+        "L27H2",
+        "L21H3",
+        "L21H1",
+        "L11H8",
+        "L20H2",
+        "L0H11",
+        "L10H5",
+        "L27H6",
+        "L5H1",
+        "L25H7",
+        "L25H10",
+        "L8H0",
+        "L7H1",
+        "L26H3",
+        "L15H7",
+        "L20H7",
+        "L18H10",
+        "L19H6",
+        "L5H0",
+        "L25H3",
+        "L9H10",
+        "L10H8",
+        "L25H6",
+        "L22H4",
+        "L14H9",
+        "L8H8",
+        "L10H6",
+        "L10H7",
+        "L16H9",
+        "L21H11",
+        "L15H6",
+        "L0H7",
+        "L16H1",
+        "L13H2",
+        "L0H5",
+        "L18H9",
+        "L13H1",
+        "L3H7",
+        "L19H10",
+        "L19H2",
+        "L26H8",
+        "L13H6",
+        "L22H9",
+        "L15H8",
+        "L4H9",
+        "L27H9",
+        "L27H3",
+        "L7H2",
+        "L0H8",
+        "L11H7",
+        "L1H1",
+        "L27H8",
+        "L25H0",
+        "L12H5",
+        "L12H8",
+        "L9H9",
+        "L23H1",
+        "L14H10",
+        "L27H7",
+        "L26H4",
+        "L17H0",
+        "L6H10",
+        "L13H7",
+        "L20H1",
+        "L12H4",
+        "L21H7",
+        "L2H11",
+        "L0H4",
+        "L7H11",
+        "L18H5",
+        "L2H10",
+        "L2H0",
+        "L11H10",
+        "L1H10",
+        "L6H11",
+        "L2H4",
+        "L24H2",
+        "L16H6",
+        "L25H11",
+        "L11H1",
+        "L9H8",
+        "L2H8",
+        "L18H6",
+        "L26H2",
+        "L12H1",
+        "L3H8",
+        "L9H7",
+        "L4H8",
+        "L8H3",
+        "L17H5",
+        "L6H6",
+        "L11H3",
+        "L4H3",
+        "L1H6",
+        "L19H0",
+        "L24H5",
+        "L5H6",
+        "L4H6",
+        "L23H10",
+        "L8H1",
+        "L3H11",
+        "L23H2",
+        "L22H8",
+        "L19H1",
+        "L23H6",
+        "L17H1",
+        "L23H11",
+        "L2H3",
+        "L19H8",
+        "L12H6",
+        "L22H10",
+        "L14H6",
+        "L23H0",
+        "L14H5",
+        "L19H5"
+      ],
+      "fwer_threshold": 0.09709374474684035,
+      "n_heads_fwer_sig": 5,
+      "heads_fwer_sig": [
+        "L21H2",
+        "L22H6",
+        "L25H8",
+        "L17H6",
+        "L17H7"
+      ],
+      "expected_false_ci_above_zero": 8.4,
+      "top10": [
+        {
+          "head": "L21H2",
+          "mean": 0.30320551746098495,
+          "ci": [
+            0.26713035230554993,
+            0.34270259751377696
+          ],
+          "top5_freq": 1.0
+        },
+        {
+          "head": "L22H6",
+          "mean": 0.20377174719234065,
+          "ci": [
+            0.1706646095845903,
+            0.24066022304517223
+          ],
+          "top5_freq": 1.0
+        },
+        {
+          "head": "L25H8",
+          "mean": 0.12964812023063843,
+          "ci": [
+            0.10739409433208336,
+            0.1529753290901461
+          ],
+          "top5_freq": 1.0
+        },
+        {
+          "head": "L17H6",
+          "mean": 0.12110696285285026,
+          "ci": [
+            0.10149056968369402,
+            0.1429484057856164
+          ],
+          "top5_freq": 0.9955
+        },
+        {
+          "head": "L17H7",
+          "mean": 0.11347355758823569,
+          "ci": [
+            0.09469542076273404,
+            0.1353766311956758
+          ],
+          "top5_freq": 0.939
+        },
+        {
+          "head": "L17H11",
+          "mean": 0.08472257818807838,
+          "ci": [
+            0.06975892817584696,
+            0.10120212623445032
+          ],
+          "top5_freq": 0.0
+        },
+        {
+          "head": "L17H8",
+          "mean": 0.07980244333405719,
+          "ci": [
+            0.06925782372878013,
+            0.09221958577489431
+          ],
+          "top5_freq": 0.0
+        },
+        {
+          "head": "L27H2",
+          "mean": 0.07872685607870346,
+          "ci": [
+            0.0444900047273042,
+            0.10955335237659991
+          ],
+          "top5_freq": 0.0635
+        },
+        {
+          "head": "L21H3",
+          "mean": 0.07319759437840127,
+          "ci": [
+            0.06317626829091824,
+            0.08417560213207285
+          ],
+          "top5_freq": 0.0
+        },
+        {
+          "head": "L21H1",
+          "mean": 0.06955848708268966,
+          "ci": [
+            0.05937708149982591,
+            0.0802386010608289
+          ],
+          "top5_freq": 0.0
+        }
+      ],
+      "leave_one_out": {
+        "L21H2": {
+          "mean": 0.30320551746098495,
+          "max_shift": 0.008137829969289467,
+          "max_shift_concept": "E300-164",
+          "max_shift_frac": 0.026839320199166905
+        },
+        "L22H6": {
+          "mean": 0.20377174719234065,
+          "max_shift": 0.012962389396688229,
+          "max_shift_concept": "E300-111",
+          "max_shift_frac": 0.0636122994246744
+        },
+        "L25H8": {
+          "mean": 0.12964812023063843,
+          "max_shift": 0.004897980687441808,
+          "max_shift_concept": "E300-284",
+          "max_shift_frac": 0.037779033577413315
+        },
+        "L17H6": {
+          "mean": 0.12110696285285026,
+          "max_shift": 0.005271919639774303,
+          "max_shift_concept": "E300-284",
+          "max_shift_frac": 0.043531102717685136
+        },
+        "L17H7": {
+          "mean": 0.11347355758823569,
+          "max_shift": 0.007712944117816797,
+          "max_shift_concept": "E300-111",
+          "max_shift_frac": 0.0679712902437143
+        }
+      },
+      "top3_by_category": {
+        "L21H2": {
+          "Affective and evaluative properties": 0.28422325673984444,
+          "Animals": 0.23948293987021874,
+          "Artifacts and tools": 0.24000567618969987,
+          "Body and sensory organs": 0.1708337069014612,
+          "Cognition and emotion": 0.2577285639731105,
+          "Cognition, emotion, state, and relation": 0.37143677916112455,
+          "Colour and sensory properties": 0.26480017390063343,
+          "Communication": 0.3225821619213446,
+          "Contact, creation, and consumption": 0.37159727089704386,
+          "Events and natural phenomena": 0.29568905733031864,
+          "Food and substances": 0.27001939201156305,
+          "Manner, time, frequency, and location": 0.1433882851950198,
+          "Motion and posture": 0.4690511146778684,
+          "People, kinship, and social roles": 0.38385499207157214,
+          "Perception and sensory experience": 0.27344267398930644,
+          "Places and locations": 0.3260653773897888,
+          "Plants and natural objects": 0.44694192204434496,
+          "Social interaction, possession, and change": 0.20228131638203345,
+          "Time, quantity, and shape": 0.1794214147829965
+        },
+        "L22H6": {
+          "Affective and evaluative properties": 0.260357067515976,
+          "Animals": 0.12323085312809719,
+          "Artifacts and tools": 0.13159248156431788,
+          "Body and sensory organs": 0.14133001483147087,
+          "Cognition and emotion": 0.15631166364185606,
+          "Cognition, emotion, state, and relation": 0.14588952584027862,
+          "Colour and sensory properties": 0.3083611966649452,
+          "Communication": 0.19394769730014472,
+          "Contact, creation, and consumption": 0.31848515497945773,
+          "Events and natural phenomena": 0.3211529126698554,
+          "Food and substances": 0.14816219555835625,
+          "Manner, time, frequency, and location": 0.1458581750885405,
+          "Motion and posture": 0.2739832279647155,
+          "People, kinship, and social roles": 0.22124218938603457,
+          "Perception and sensory experience": 0.20622714590669342,
+          "Places and locations": 0.20128567766465133,
+          "Plants and natural objects": 0.24257111712236243,
+          "Social interaction, possession, and change": 0.13826149455020398,
+          "Time, quantity, and shape": 0.08826741023455381
+        },
+        "L25H8": {
+          "Affective and evaluative properties": 0.19968047727231142,
+          "Animals": 0.1243139159539421,
+          "Artifacts and tools": 0.13819650546695858,
+          "Body and sensory organs": 0.0823302490809986,
+          "Cognition and emotion": 0.11767151439197346,
+          "Cognition, emotion, state, and relation": 0.1496164523761031,
+          "Colour and sensory properties": 0.10759555977397378,
+          "Communication": 0.05045112695603368,
+          "Contact, creation, and consumption": 0.16926746926857034,
+          "Events and natural phenomena": 0.15004340848125367,
+          "Food and substances": 0.0915668042591686,
+          "Manner, time, frequency, and location": 0.074557329528911,
+          "Motion and posture": 0.18150463202751493,
+          "People, kinship, and social roles": 0.16656534883055424,
+          "Perception and sensory experience": 0.08157234500934306,
+          "Places and locations": 0.14210655820275409,
+          "Plants and natural objects": 0.2079939500305609,
+          "Social interaction, possession, and change": 0.04459001448773105,
+          "Time, quantity, and shape": 0.08007286171629727
+        }
+      }
+    },
+    "en_hi-deva": {
+      "n": 39,
+      "score_mean": 0.001603907114265249,
+      "score_std": 0.014769138467449875,
+      "score_max": 0.10121595058032436,
+      "n_heads_ci_above_zero": 118,
+      "heads_ci_above_zero": [
+        "L22H6",
+        "L21H2",
+        "L27H2",
+        "L16H9",
+        "L17H7",
+        "L18H10",
+        "L21H5",
+        "L22H0",
+        "L9H3",
+        "L25H8",
+        "L22H4",
+        "L9H2",
+        "L5H5",
+        "L17H8",
+        "L14H9",
+        "L21H3",
+        "L10H2",
+        "L19H6",
+        "L7H10",
+        "L20H2",
+        "L8H5",
+        "L14H7",
+        "L25H7",
+        "L21H0",
+        "L6H5",
+        "L21H4",
+        "L5H2",
+        "L0H8",
+        "L2H0",
+        "L4H9",
+        "L24H4",
+        "L11H9",
+        "L24H10",
+        "L9H0",
+        "L17H5",
+        "L8H11",
+        "L25H0",
+        "L23H5",
+        "L17H11",
+        "L17H6",
+        "L9H1",
+        "L13H9",
+        "L15H2",
+        "L18H2",
+        "L3H9",
+        "L20H8",
+        "L25H3",
+        "L1H11",
+        "L21H8",
+        "L16H7",
+        "L0H2",
+        "L25H10",
+        "L7H1",
+        "L21H1",
+        "L27H11",
+        "L21H11",
+        "L22H3",
+        "L5H0",
+        "L16H1",
+        "L13H1",
+        "L6H0",
+        "L6H3",
+        "L8H8",
+        "L23H3",
+        "L26H8",
+        "L2H5",
+        "L16H5",
+        "L3H3",
+        "L22H7",
+        "L17H2",
+        "L2H7",
+        "L12H7",
+        "L22H1",
+        "L20H9",
+        "L12H5",
+        "L22H9",
+        "L10H11",
+        "L10H9",
+        "L18H0",
+        "L15H10",
+        "L18H3",
+        "L9H11",
+        "L7H11",
+        "L2H11",
+        "L8H9",
+        "L0H5",
+        "L13H10",
+        "L4H8",
+        "L8H1",
+        "L11H10",
+        "L0H4",
+        "L26H4",
+        "L14H2",
+        "L26H3",
+        "L26H6",
+        "L4H1",
+        "L23H1",
+        "L11H1",
+        "L10H7",
+        "L23H6",
+        "L5H4",
+        "L24H3",
+        "L24H0",
+        "L25H6",
+        "L21H9",
+        "L11H3",
+        "L19H2",
+        "L6H1",
+        "L9H7",
+        "L24H1",
+        "L19H3",
+        "L22H8",
+        "L24H2",
+        "L4H4",
+        "L19H1",
+        "L4H10",
+        "L14H1",
+        "L23H2"
+      ],
+      "fwer_threshold": 0.0330732185145652,
+      "n_heads_fwer_sig": 11,
+      "heads_fwer_sig": [
+        "L22H6",
+        "L21H2",
+        "L27H2",
+        "L16H9",
+        "L17H7",
+        "L18H10",
+        "L21H5",
+        "L22H0",
+        "L9H3",
+        "L25H8",
+        "L22H4"
+      ],
+      "expected_false_ci_above_zero": 8.4,
+      "top10": [
+        {
+          "head": "L22H6",
+          "mean": 0.10121595058032436,
+          "ci": [
+            0.08210233563658427,
+            0.12108870967841445
+          ],
+          "top5_freq": 1.0
+        },
+        {
+          "head": "L21H2",
+          "mean": 0.09162009752735181,
+          "ci": [
+            0.07266302745105593,
+            0.11106994746758649
+          ],
+          "top5_freq": 1.0
+        },
+        {
+          "head": "L27H2",
+          "mean": 0.0872707753171909,
+          "ci": [
+            0.0734582823871508,
+            0.10192121327554661
+          ],
+          "top5_freq": 1.0
+        },
+        {
+          "head": "L16H9",
+          "mean": 0.06930396013568245,
+          "ci": [
+            0.05922984729122701,
+            0.07914483903001675
+          ],
+          "top5_freq": 1.0
+        },
+        {
+          "head": "L17H7",
+          "mean": 0.05413993377430602,
+          "ci": [
+            0.043993790834340234,
+            0.06535696207444924
+          ],
+          "top5_freq": 0.9125
+        },
+        {
+          "head": "L18H10",
+          "mean": 0.04577692418246585,
+          "ci": [
+            0.03407105071076521,
+            0.05809147687117434
+          ],
+          "top5_freq": 0.0865
+        },
+        {
+          "head": "L21H5",
+          "mean": 0.039111376277214185,
+          "ci": [
+            0.030325470516753807,
+            0.04842561250007577
+          ],
+          "top5_freq": 0.0
+        },
+        {
+          "head": "L22H0",
+          "mean": 0.037272514549876894,
+          "ci": [
+            0.03160436932575684,
+            0.042745956429281376
+          ],
+          "top5_freq": 0.0
+        },
+        {
+          "head": "L9H3",
+          "mean": 0.03649798580192313,
+          "ci": [
+            0.029592898898234347,
+            0.043912327887906076
+          ],
+          "top5_freq": 0.0
+        },
+        {
+          "head": "L25H8",
+          "mean": 0.03603109893981625,
+          "ci": [
+            0.02705053762374446,
+            0.04665494005447598
+          ],
+          "top5_freq": 0.0
+        }
+      ],
+      "leave_one_out": {
+        "L22H6": {
+          "mean": 0.10121595058032436,
+          "max_shift": 0.005021507681470333,
+          "max_shift_concept": "E300-076",
+          "max_shift_frac": 0.0496118215822643
+        },
+        "L21H2": {
+          "mean": 0.09162009752735181,
+          "max_shift": 0.0055631374234806075,
+          "max_shift_concept": "E300-076",
+          "max_shift_frac": 0.06071961909688882
+        },
+        "L27H2": {
+          "mean": 0.0872707753171909,
+          "max_shift": 0.003324589051591123,
+          "max_shift_concept": "E300-061",
+          "max_shift_frac": 0.038095101590511875
+        },
+        "L16H9": {
+          "mean": 0.06930396013568245,
+          "max_shift": 0.0015859148840742382,
+          "max_shift_concept": "E300-016",
+          "max_shift_frac": 0.022883466990477216
+        },
+        "L17H7": {
+          "mean": 0.05413993377430602,
+          "max_shift": 0.002849421985149765,
+          "max_shift_concept": "E300-076",
+          "max_shift_frac": 0.05263068841251625
+        }
+      },
+      "top3_by_category": {
+        "L22H6": {
+          "Affective and evaluative properties": 0.1532714135157605,
+          "Animals": 0.08636706753746488,
+          "Artifacts and tools": 0.08120544974967805,
+          "Body and sensory organs": 0.09917947041510221,
+          "Cognition and emotion": 0.08269668912165676,
+          "Cognition, emotion, state, and relation": 0.08383684060768186,
+          "Colour and sensory properties": 0.18695780446425503,
+          "Communication": 0.05630053469283717,
+          "Contact, creation, and consumption": 0.11354202563979882,
+          "Events and natural phenomena": 0.07760610901634386,
+          "Food and substances": 0.05406101338210973,
+          "Manner, time, frequency, and location": 0.07737270826982265,
+          "Motion and posture": 0.14173146632049946,
+          "People, kinship, and social roles": 0.17304711063470316,
+          "Perception and sensory experience": 0.049814846557124544,
+          "Places and locations": 0.20271111268673472,
+          "Plants and natural objects": 0.046580285821467164,
+          "Social interaction, possession, and change": 0.0683842126095789,
+          "Time, quantity, and shape": 0.1207285379995284
+        },
+        "L21H2": {
+          "Affective and evaluative properties": 0.09120038679549725,
+          "Animals": 0.05691545867499561,
+          "Artifacts and tools": 0.05995638845443603,
+          "Body and sensory organs": 0.1577525501685673,
+          "Cognition and emotion": 0.08673932671256046,
+          "Cognition, emotion, state, and relation": 0.07188729837417869,
+          "Colour and sensory properties": 0.09822777213540629,
+          "Communication": 0.05573192422112466,
+          "Contact, creation, and consumption": 0.12274590454570566,
+          "Events and natural phenomena": 0.07420626151641257,
+          "Food and substances": 0.0298145729932626,
+          "Manner, time, frequency, and location": 0.04819908841293805,
+          "Motion and posture": 0.10376158904056051,
+          "People, kinship, and social roles": 0.21538368081655304,
+          "Perception and sensory experience": 0.06971716063474595,
+          "Places and locations": 0.18299410116491205,
+          "Plants and natural objects": 0.0505810839103459,
+          "Social interaction, possession, and change": 0.09784677408152521,
+          "Time, quantity, and shape": 0.11908954140963639
+        },
+        "L27H2": {
+          "Affective and evaluative properties": 0.13103786721599972,
+          "Animals": 0.0816532708375548,
+          "Artifacts and tools": 0.07462373566576529,
+          "Body and sensory organs": 0.14395240423048752,
+          "Cognition and emotion": 0.07177704923353653,
+          "Cognition, emotion, state, and relation": 0.060424183212314964,
+          "Colour and sensory properties": 0.10949446235683649,
+          "Communication": 0.03458881564500774,
+          "Contact, creation, and consumption": 0.0832080675943996,
+          "Events and natural phenomena": 0.0772845804897342,
+          "Food and substances": 0.05888561947708895,
+          "Manner, time, frequency, and location": 0.05203961248856364,
+          "Motion and posture": 0.14039480763315512,
+          "People, kinship, and social roles": 0.1376923666357423,
+          "Perception and sensory experience": 0.07003792527502989,
+          "Places and locations": 0.15036208303058027,
+          "Plants and natural objects": 0.06116841751638127,
+          "Social interaction, possession, and change": 0.06282052317523115,
+          "Time, quantity, and shape": 0.0953769771362288
+        }
+      }
+    }
+  },
+  "correlations": {
+    "en_hi-latn vs hi-deva_hi-latn": {
+      "pearson": 0.3038388900206757,
+      "spearman": 0.08537642436397917,
+      "pearson_wo_top2": 0.229941243428496,
+      "null_mean": 0.056146577894191876,
+      "null_95": 0.17287861758920517,
+      "p_vs_null": 0.0
+    },
+    "en_hi-latn vs en_hi-deva": {
+      "pearson": 0.68374345954339,
+      "spearman": 0.6454926511992812,
+      "pearson_wo_top2": 0.6514748860430594,
+      "null_mean": 0.1006545706893861,
+      "null_95": 0.2203138823861303,
+      "p_vs_null": 0.0
+    },
+    "hi-deva_hi-latn vs en_hi-deva": {
+      "pearson": 0.5719585385625027,
+      "spearman": 0.20423307371577892,
+      "pearson_wo_top2": 0.503858708720204,
+      "null_mean": 0.07368091670198067,
+      "null_95": 0.22869517494265626,
+      "p_vs_null": 0.0
+    },
+    "_top2_excluded": [
+      "L22H0",
+      "L21H2"
+    ]
+  },
+  "bootstrap_B": 2000,
+  "null_n": 2000,
+  "seed": 0
+}
