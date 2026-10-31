@@ -12,13 +12,14 @@
 # ---------------------------------------------------------------------------
 # Stage-2 CRA vs. matched-budget controls -- ONE arm per submission.
 #
-# Pick the arm with MASK_MODE (uniform | soft | topk | random). Submit one job
+# Pick the arm with MASK_MODE (uniform | soft | topk | topk_abs | random). Submit one job
 # per arm and compare the `RESULT` lines (grep the .out) / W&B side by side:
 #
-#     MASK_MODE=soft    sbatch cluster/train_cra_compare.slurm
-#     MASK_MODE=uniform sbatch cluster/train_cra_compare.slurm
-#     MASK_MODE=topk    sbatch cluster/train_cra_compare.slurm
-#     MASK_MODE=random  sbatch cluster/train_cra_compare.slurm
+#     MASK_MODE=soft     sbatch cluster/train_cra_compare.slurm
+#     MASK_MODE=uniform  sbatch cluster/train_cra_compare.slurm
+#     MASK_MODE=topk     sbatch cluster/train_cra_compare.slurm
+#     MASK_MODE=topk_abs sbatch cluster/train_cra_compare.slurm
+#     MASK_MODE=random   sbatch cluster/train_cra_compare.slurm
 #
 # soft/topk/random need Daniel's Stage-1 scores at the path in cra.scores_file
 # (default data/stage1_head_scores.json). uniform ignores it.
@@ -35,7 +36,7 @@ REPO_ROOT="$(pwd)"
 mkdir -p logs
 
 CONFIG="${CONFIG:-configs/cra_compare.yaml}"
-MASK_MODE="${MASK_MODE:-soft}"     # uniform | soft | topk | random
+MASK_MODE="${MASK_MODE:-soft}"     # uniform | soft | topk | topk_abs | random
 # One durable run dir per arm, reused across the whole chain.
 RUN_DIR="${RUN_DIR:-runs/cra-${MASK_MODE}-$(date +%Y%m%d-%H%M%S)}"
 mkdir -p "${RUN_DIR}"

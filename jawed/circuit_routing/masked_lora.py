@@ -97,6 +97,28 @@ def topk_mask_from_scores(scores: Sequence[float], k: int) -> torch.Tensor:
     return mask
 
 
+def topk_mask_from_scores_abs(scores: Sequence[float], k: int) -> torch.Tensor:
+    """Binary mask keeping the ``k`` heads of largest ``|score|``.
+
+    Unlike :func:`topk_mask_from_scores` (which keeps only the most *positive*
+    heads), this ranks by magnitude so strong **negative** heads are kept too.
+    Motivated by Zhang et al., *Exploring the Translation Mechanism of LLMs*,
+    whose head/MLP importance maps show components with large *negative* effect
+    on the target token; signed top-k would discard exactly those suppressors.
+    Budget-matched to :func:`random_mask` / :func:`topk_mask_from_scores` at the
+    same ``k``.
+    """
+    s = torch.as_tensor(list(scores), dtype=torch.float32)
+    n = s.numel()
+    if not 0 <= k <= n:
+        raise ValueError(f"k={k} out of range for {n} heads")
+    mask = torch.zeros(n)
+    if k > 0:
+        top = torch.topk(s.abs(), k).indices
+        mask[top] = 1.0
+    return mask
+
+
 def random_mask(num_heads: int, k: int, *, generator: Optional[torch.Generator] = None) -> torch.Tensor:
     """Binary mask over ``k`` random heads -- the matched-sparsity control.
 
@@ -153,6 +175,26 @@ def topk_mask_from_scores_global(
     flat = torch.zeros(n)
     if k_total > 0:
         top = torch.topk(s.flatten(), k_total).indices
+        flat[top] = 1.0
+    return flat.view(num_layers, num_heads)
+
+
+def topk_mask_from_scores_abs_global(
+    scores_2d: Sequence[Sequence[float]], k_total: int
+) -> torch.Tensor:
+    """Global magnitude top-k: 1 on the ``k_total`` heads of largest ``|score|``
+    across ALL ``L*H`` heads (keeps strong negative/suppressor heads the signed
+    :func:`topk_mask_from_scores_global` would drop), else 0. Returned as
+    ``[L, H]`` and budget-matched to :func:`random_mask_global` at ``k_total``.
+    """
+    s = torch.as_tensor([list(r) for r in scores_2d], dtype=torch.float32)
+    num_layers, num_heads = s.shape
+    n = num_layers * num_heads
+    if not 0 <= k_total <= n:
+        raise ValueError(f"k_total={k_total} out of range for {n} heads")
+    flat = torch.zeros(n)
+    if k_total > 0:
+        top = torch.topk(s.abs().flatten(), k_total).indices
         flat[top] = 1.0
     return flat.view(num_layers, num_heads)
 

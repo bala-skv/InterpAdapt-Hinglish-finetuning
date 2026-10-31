@@ -9,6 +9,8 @@ macro-F1). Run it once per arm and read the ``RESULT`` lines / W&B side by side:
 * ``soft``    -- soft scaling ``M = f(s_i)`` from Daniel's Stage-1 causal scores
                  (novelty *(iii)*: the mask gates *inside* the LoRA update).
 * ``topk``    -- hard top-k: adapt only the ``k`` highest-scoring heads per layer.
+* ``topk_abs`` -- hard top-k by ``|score|``: keeps strong negative (suppressor)
+                 heads the signed ``topk`` would drop (Zhang et al.); budget-matched.
 * ``random``  -- the KEY control: ``k`` random heads per layer at the SAME budget
                  as ``topk`` (tests the *sign* of the causal signal, not sparsity).
 
@@ -72,13 +74,15 @@ from circuit_routing.masked_lora import (
     soft_mask_from_scores,
     soft_mask_from_scores_global,
     topk_mask_from_scores,
+    topk_mask_from_scores_abs,
+    topk_mask_from_scores_abs_global,
     topk_mask_from_scores_global,
     uniform_mask,
 )
 from circuit_routing.model_loading import load_model, load_tokenizer, verify_base_checkpoint
 from circuit_routing.seeding import set_seed
 
-_MASK_MODES = ("uniform", "soft", "topk", "random")
+_MASK_MODES = ("uniform", "soft", "topk", "topk_abs", "random")
 
 
 # --------------------------------------------------------------------------- #
@@ -86,7 +90,7 @@ _MASK_MODES = ("uniform", "soft", "topk", "random")
 # --------------------------------------------------------------------------- #
 @dataclass
 class CraCfg:
-    mask_mode: str = "soft"                       # uniform | soft | topk | random
+    mask_mode: str = "soft"                       # uniform | soft | topk | topk_abs | random
     # PRIMARY scope is "global": one scale/threshold shared across all L*H heads
     # (a noisy layer's best head is NOT forced to a full gate). "per_layer" is
     # the ablation control (per-layer min-max soft / per-layer top-k).
@@ -255,6 +259,8 @@ def build_head_masks(cfg: CraConfig, layout, log) -> Optional[Dict[str, "object"
             grid = soft_mask_from_scores_global(scores, floor=cfg.cra.soft_floor)
         elif mode == "topk":
             grid = topk_mask_from_scores_global(scores, cfg.cra.k_total)
+        elif mode == "topk_abs":
+            grid = topk_mask_from_scores_abs_global(scores, cfg.cra.k_total)
         else:  # random
             gen = torch.Generator().manual_seed(cfg.cra.random_seed)
             grid = random_mask_global(layout.num_layers, n_heads, cfg.cra.k_total, generator=gen)
@@ -262,7 +268,7 @@ def build_head_masks(cfg: CraConfig, layout, log) -> Optional[Dict[str, "object"
         log.info(
             "built GLOBAL %s masks | active_heads=%d/%d (%s)",
             mode, int((grid != 0).sum().item()), grid.numel(),
-            f"k_total={cfg.cra.k_total}" if mode in ("topk", "random") else "dense soft",
+            f"k_total={cfg.cra.k_total}" if mode in ("topk", "topk_abs", "random") else "dense soft",
         )
     else:  # per_layer ablation control
         k = cfg.cra.k
@@ -275,13 +281,15 @@ def build_head_masks(cfg: CraConfig, layout, log) -> Optional[Dict[str, "object"
                 )
             if mode == "topk":
                 return topk_mask_from_scores(row, k)
+            if mode == "topk_abs":
+                return topk_mask_from_scores_abs(row, k)
             return random_mask(n_heads, k, generator=gen)
 
         per_layer = [_mask_for_layer(row) for row in scores]
         log.info(
             "built PER-LAYER %s masks for %d layers (%s), k=%s per layer",
             mode, layout.num_layers, cfg.cra.target_modules,
-            k if mode in ("topk", "random") else "dense",
+            k if mode in ("topk", "topk_abs", "random") else "dense",
         )
 
     # Attach the layer mask to both head-aligned projections in that layer.
