@@ -1,0 +1,19 @@
+{
+  "mask_mode": "soft",
+  "scope": "global",
+  "tag": "M-soft",
+  "adapted_budget": 0,
+  "active_heads": 0,
+  "effective_params": 1427456,
+  "mlp_wrappers": 17,
+  "mlp_modules": [
+    "down_proj"
+  ],
+  "mlp_mode": "soft",
+  "mlp_k_layers": 3,
+  "num_wrappers": 17,
+  "rank": 8,
+  "k_per_layer": null,
+  "k_total": null,
+  "gpu": "NVIDIA GeForce RTX 2080 Ti"
+}

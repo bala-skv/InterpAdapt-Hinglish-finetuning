@@ -1,0 +1,19 @@
+{
+  "mask_mode": "random",
+  "scope": "global",
+  "tag": "M-random3",
+  "adapted_budget": 0,
+  "active_heads": 0,
+  "effective_params": 251904,
+  "mlp_wrappers": 3,
+  "mlp_modules": [
+    "down_proj"
+  ],
+  "mlp_mode": "random",
+  "mlp_k_layers": 3,
+  "num_wrappers": 3,
+  "rank": 8,
+  "k_per_layer": null,
+  "k_total": 112,
+  "gpu": "NVIDIA GeForce RTX 2080 Ti"
+}

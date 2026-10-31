@@ -1,0 +1,18 @@
+{
+  "n_eval": 1260,
+  "base_acc": 0.35793650793650794,
+  "cra_acc": 0.6007936507936508,
+  "delta_acc": 0.24285714285714283,
+  "base_macro_f1": 0.31944887797558147,
+  "cra_macro_f1": 0.5684639011252229,
+  "step": 600,
+  "mask_mode": "soft",
+  "scope": "global",
+  "tag": "H-soft",
+  "seed": 0,
+  "adapted_budget": 350208,
+  "active_heads": 342,
+  "effective_params": 1038336,
+  "mlp_wrappers": 0,
+  "gpu": "NVIDIA GeForce RTX 2080 Ti"
+}

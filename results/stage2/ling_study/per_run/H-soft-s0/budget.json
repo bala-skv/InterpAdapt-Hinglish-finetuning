@@ -1,0 +1,17 @@
+{
+  "mask_mode": "soft",
+  "scope": "global",
+  "tag": "H-soft",
+  "adapted_budget": 350208,
+  "active_heads": 342,
+  "effective_params": 1038336,
+  "mlp_wrappers": 0,
+  "mlp_modules": [],
+  "mlp_mode": null,
+  "mlp_k_layers": null,
+  "num_wrappers": 56,
+  "rank": 8,
+  "k_per_layer": null,
+  "k_total": null,
+  "gpu": "NVIDIA GeForce RTX 2080 Ti"
+}

@@ -1,0 +1,18 @@
+{
+  "n_eval": 1260,
+  "base_acc": 0.35793650793650794,
+  "cra_acc": 0.6198412698412699,
+  "delta_acc": 0.2619047619047619,
+  "base_macro_f1": 0.31944887797558147,
+  "cra_macro_f1": 0.595456247926363,
+  "step": 600,
+  "mask_mode": "random",
+  "scope": "global",
+  "tag": "H-random112",
+  "seed": 1,
+  "adapted_budget": 229376,
+  "active_heads": 224,
+  "effective_params": 917504,
+  "mlp_wrappers": 0,
+  "gpu": "NVIDIA GeForce RTX 2080 Ti"
+}

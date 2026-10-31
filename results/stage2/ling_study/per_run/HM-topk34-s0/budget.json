@@ -1,0 +1,19 @@
+{
+  "mask_mode": "topk",
+  "scope": "global",
+  "tag": "HM-topk34",
+  "adapted_budget": 69632,
+  "active_heads": 68,
+  "effective_params": 763904,
+  "mlp_wrappers": 3,
+  "mlp_modules": [
+    "down_proj"
+  ],
+  "mlp_mode": "topk",
+  "mlp_k_layers": 3,
+  "num_wrappers": 59,
+  "rank": 8,
+  "k_per_layer": null,
+  "k_total": 34,
+  "gpu": "NVIDIA GeForce RTX 2080 Ti"
+}

@@ -1,0 +1,18 @@
+{
+  "n_eval": 1260,
+  "base_acc": 0.35793650793650794,
+  "cra_acc": 0.6047619047619047,
+  "delta_acc": 0.24682539682539678,
+  "base_macro_f1": 0.31944887797558147,
+  "cra_macro_f1": 0.5757082230158083,
+  "step": 600,
+  "mask_mode": "topk",
+  "scope": "global",
+  "tag": "H-topk34",
+  "seed": 1,
+  "adapted_budget": 69632,
+  "active_heads": 68,
+  "effective_params": 512000,
+  "mlp_wrappers": 0,
+  "gpu": "NVIDIA GeForce RTX 2080 Ti"
+}

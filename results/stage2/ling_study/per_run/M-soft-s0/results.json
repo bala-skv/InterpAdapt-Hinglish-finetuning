@@ -1,0 +1,18 @@
+{
+  "n_eval": 1260,
+  "base_acc": 0.35793650793650794,
+  "cra_acc": 0.6126984126984127,
+  "delta_acc": 0.2547619047619048,
+  "base_macro_f1": 0.31944887797558147,
+  "cra_macro_f1": 0.5846012620921427,
+  "step": 600,
+  "mask_mode": "soft",
+  "scope": "global",
+  "tag": "M-soft",
+  "seed": 0,
+  "adapted_budget": 0,
+  "active_heads": 0,
+  "effective_params": 1427456,
+  "mlp_wrappers": 17,
+  "gpu": "NVIDIA GeForce RTX 2080 Ti"
+}
