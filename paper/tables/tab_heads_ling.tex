@@ -1,0 +1,15 @@
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Contrast} & \textbf{Concepts} & \textbf{Mean Contrast} & \textbf{CI $>0$} & \textbf{FWER heads} \\
+\midrule
+Language (en $\leftrightarrow$ hi-latn) & 39 & 11.50 & 116 / 336 & 14 (thr 0.017) \\
+Script (hi-deva $\leftrightarrow$ hi-latn) & 39 & 2.20 & 122 / 336 & 5 (thr 0.097) \\
+Both (en $\leftrightarrow$ hi-deva) & 39 & 8.39 & 118 / 336 & 11 (thr 0.033) \\
+\bottomrule
+\end{tabular}
+\caption{Single-head patching on the linguistic set (39 concepts passing original rules).}
+\label{tab:heads_ling}
+\end{table}

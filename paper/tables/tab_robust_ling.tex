@@ -1,0 +1,23 @@
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lcc}
+\toprule
+\textbf{Metric} & \textbf{99 concepts (orig rules)} & \textbf{120 concepts (loosened)} \\
+\midrule
+Mean contrast (lang / script / both) & 9.9 / 3.4 / 6.6 & 9.7 / 3.3 / 6.7 \\
+Heads passing family-wise test & 22 & 24 \\
+Heads with 95\% CI $>0$ & 137 & 136 \\
+Top heads & L16H9, L22H6, L21H2 & L16H9, L21H2, L22H6 \\
+Joint / sum of singles (top 20 heads) & 0.654 / 0.528 & 0.666 / 0.536 \\
+Joint / sum / random (100 heads) & 1.01 / 1.11 / 0.09 & 1.02 / 1.10 / 0.09 \\
+All 336 heads together & 0.88 & 0.88 \\
+Robust pairs of 595 (negative) & 223 (42) & 239 (46) \\
+Main-set robust pairs replicated & 76 of 77 & 77 of 77 \\
+Pilot robust pairs replicated & 10 of 10 & 10 of 10 \\
+Significant MLP layers / top layer & 15 / L22 (0.125) & 15 / L22 (0.127) \\
+\bottomrule
+\end{tabular}
+\caption{Replication across the 99-concept (original thresholds) and 120-concept sets.}
+\label{tab:replication}
+\end{table}
